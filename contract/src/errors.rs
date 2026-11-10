@@ -42,11 +42,18 @@ pub const E_BAD_ACTION: &str = "E_BAD_ACTION: action must be accept or reject";
 // Payments and payouts
 pub const E_NOTHING_CLAIMABLE: &str = "E_NOTHING_CLAIMABLE: no claimable balance for that token";
 
+// Marketplace
+pub const E_NOT_TRADABLE: &str =
+    "E_NOT_TRADABLE: an invoice can only change hands once accepted and before it is fully paid";
+pub const E_PRICE_ZERO: &str = "E_PRICE_ZERO: price must be greater than zero";
+pub const E_PRICE_TOO_HIGH: &str =
+    "E_PRICE_TOO_HIGH: price must be below the unpaid balance, or nobody should buy it";
+pub const E_NOT_LISTED: &str = "E_NOT_LISTED: invoice is not for sale";
+pub const E_ALREADY_LISTED: &str = "E_ALREADY_LISTED: invoice is already for sale";
+
 // NFT
 // There is deliberately no approvals error: NEP-178 is disabled by constructing the
 // token with no approval prefix, so no code path exists that could reject an approval.
-pub const E_TRANSFER_NOT_ALLOWED: &str =
-    "E_TRANSFER_NOT_ALLOWED: invoice NFTs cannot be transferred yet";
 
 // Arithmetic
 pub const E_OVERFLOW: &str = "E_OVERFLOW: arithmetic overflow";

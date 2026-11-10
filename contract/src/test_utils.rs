@@ -257,3 +257,42 @@ pub fn set_context_at(predecessor: &str, timestamp: u64) {
     builder.block_timestamp(timestamp);
     testing_env!(builder.build());
 }
+
+/// The NEP-297 events emitted by the call under test, as parsed JSON.
+///
+/// Asserting on parsed JSON rather than substrings means a renamed field fails the test
+/// instead of passing because the old name happened to appear somewhere in the payload.
+pub fn events() -> Vec<near_sdk::serde_json::Value> {
+    near_sdk::test_utils::get_logs()
+        .iter()
+        .filter_map(|log| log.strip_prefix("EVENT_JSON:"))
+        .filter_map(|json| near_sdk::serde_json::from_str(json).ok())
+        .collect()
+}
+
+/// The one `ileri` event named `name`, or `None`.
+pub fn ileri_event(name: &str) -> Option<near_sdk::serde_json::Value> {
+    events()
+        .into_iter()
+        .find(|e| e["standard"] == "ileri" && e["event"] == name)
+}
+
+/// NEP-171 requires exactly 1 yocto on a transfer.
+pub fn one_yocto() -> NearToken {
+    NearToken::from_yoctonear(1)
+}
+
+/// An accepted, and therefore tradable, invoice held by [`ISSUER`].
+pub fn with_tradable_invoice(amount: u128) -> (Contract, u64) {
+    let (mut contract, id) = with_invoice(amount);
+    force_status(&mut contract, id, Status::Accepted, 0);
+    (contract, id)
+}
+
+/// The NEP-171 `nft_transfer` events emitted by the call under test.
+pub fn nft_transfer_events() -> Vec<near_sdk::serde_json::Value> {
+    events()
+        .into_iter()
+        .filter(|e| e["standard"] == "nep171" && e["event"] == "nft_transfer")
+        .collect()
+}

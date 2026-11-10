@@ -5,6 +5,7 @@ use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::{env, near};
 
 use crate::errors::{E_ISSUER_CANNOT_ACT_AS_CLIENT, E_NOT_EXPECTED_CLIENT};
+use crate::events::Event;
 use crate::guards::caller;
 use crate::invite::{self, InviteAction};
 use crate::types::{Status, to_hash32};
@@ -39,6 +40,13 @@ impl Contract {
 
         self.invoices.insert(id, invoice);
         self.push_client_index(&who, id);
+
+        self.bump_reputation(&who, |rep| rep.accepted_as_client += 1);
+        Event::InvoiceAccepted {
+            invoice_id: id.into(),
+            client: who,
+        }
+        .emit();
     }
 
     /// Reject an invoice.
@@ -64,10 +72,22 @@ impl Contract {
         self.assert_expected_client(&invoice, &who);
         invite::verify(&invoice, id, &who, InviteAction::Reject, &invite_sig);
 
+        let issuer = invoice.issuer.clone();
         invoice.status = Status::Rejected;
         invoice.reject_reason_hash = reason_hash.as_ref().map(to_hash32);
 
         self.invoices.insert(id, invoice);
+
+        // Both sides are recorded: the issuer had an invoice rejected, and the caller
+        // rejected one. The caller need not be a bound client, since rejecting never
+        // binds one.
+        self.bump_reputation(&issuer, |rep| rep.rejected_as_issuer += 1);
+        self.bump_reputation(&who, |rep| rep.rejected_as_client += 1);
+        Event::InvoiceRejected {
+            invoice_id: id.into(),
+            by: who,
+        }
+        .emit();
     }
 
     /// Replace the invite key, which kills the old link.
@@ -85,6 +105,11 @@ impl Contract {
 
         invoice.invite_pk = new_invite_pk;
         self.invoices.insert(id, invoice);
+
+        Event::InviteRotated {
+            invoice_id: id.into(),
+        }
+        .emit();
     }
 }
 

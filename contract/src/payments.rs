@@ -26,6 +26,7 @@ use near_sdk::serde_json;
 use near_sdk::{AccountId, Promise, PromiseError, PromiseOrValue, env, near};
 
 use crate::errors::E_NOTHING_CLAIMABLE;
+use crate::events::Event;
 use crate::gas::{GAS_FT_TRANSFER, GAS_ON_PAYOUT, GAS_ON_WITHDRAW_RESOLVE, ONE_YOCTO};
 use crate::guards::caller;
 use crate::math;
@@ -57,14 +58,14 @@ impl FungibleTokenReceiver for Contract {
     /// `customRecipientMsg` so a cross-chain payment lands here directly.
     fn ft_on_transfer(
         &mut self,
-        _sender_id: AccountId,
+        sender_id: AccountId,
         amount: U128,
         msg: String,
     ) -> PromiseOrValue<U128> {
-        // `_sender_id` is deliberately unused. For a cross-chain payment it is the Intents
-        // contract, not the person paying, so it identifies nobody useful. It also means
-        // NEP-141 refunds any excess to *that* account rather than the payer, which is why
-        // quotes use EXACT_OUTPUT to keep the excess at zero.
+        // `sender_id` is reported in the event but never trusted as an identity. For a
+        // cross-chain payment it is the Intents contract, not the person paying. It also
+        // means NEP-141 refunds any excess to *that* account rather than the payer, which
+        // is why quotes use EXACT_OUTPUT to keep the excess at zero.
 
         let token = caller();
 
@@ -79,8 +80,9 @@ impl FungibleTokenReceiver for Contract {
 
         let invoice_id = match parsed {
             TransferMsg::Pay { invoice_id } => invoice_id.0,
-            // The marketplace lands in build step 2.
-            TransferMsg::Buy { .. } => return PromiseOrValue::Value(amount),
+            TransferMsg::Buy { invoice_id } => {
+                return self.buy(invoice_id.0, &sender_id, &token, amount);
+            }
         };
 
         let Some(mut invoice) = self.invoices.get(&invoice_id).cloned() else {
@@ -127,10 +129,31 @@ impl FungibleTokenReceiver for Contract {
         // until the client has actually agreed to it.
 
         let settled = invoice.status == Status::Paid;
+        let paid_total = invoice.paid;
+        let client = invoice.client.clone();
+        let due_date = invoice.due_date;
+        let total = invoice.amount;
         self.invoices.insert(invoice_id, invoice);
         if settled {
             self.listed.remove(&invoice_id);
         }
+
+        // An invoice settled while still unaccepted has no bound client, so there is
+        // nobody to attribute the payment record to. Deliberately no reputation then.
+        if settled && let Some(client) = &client {
+            self.record_settlement(client, &token, total, now, due_date);
+        }
+
+        Event::InvoicePaid {
+            invoice_id: invoice_id.into(),
+            from: sender_id,
+            token: token.clone(),
+            applied: U128(applied),
+            paid: U128(paid_total),
+            amount: U128(total),
+            settled,
+        }
+        .emit();
 
         PromiseOrValue::Promise(
             ext_ft_core::ext(token.clone())
@@ -168,6 +191,12 @@ impl Contract {
         excess: U128,
     ) -> U128 {
         if promise_failed() {
+            Event::PayoutDeferred {
+                account: holder.clone(),
+                token: token.clone(),
+                amount: applied,
+            }
+            .emit();
             self.credit_claimable(holder, token, applied.0);
         }
         excess
@@ -187,6 +216,13 @@ impl Contract {
         // withdraw it twice. `on_withdraw_resolve` puts it back if the send fails, which
         // is what makes zeroing first safe rather than lossy.
         self.claimable.remove(&key);
+
+        Event::ClaimableWithdrawn {
+            account: who.clone(),
+            token: token.clone(),
+            amount: U128(balance),
+        }
+        .emit();
 
         ext_ft_core::ext(token.clone())
             .with_attached_deposit(ONE_YOCTO)
@@ -222,6 +258,46 @@ impl Contract {
 }
 
 impl Contract {
+    /// Buy a listed invoice.
+    ///
+    /// The buyer is the NEP-141 `sender_id`, not the predecessor: the predecessor is the
+    /// token contract. That has a consequence worth stating plainly. A purchase routed
+    /// through NEAR Intents would make the Intents contract the sender and therefore the
+    /// new holder of the invoice, so buying must be a direct `ft_transfer_call` from the
+    /// buyer's own account. Paying an invoice has no such constraint, because a payment
+    /// credits the invoice rather than transferring ownership.
+    fn buy(
+        &mut self,
+        invoice_id: u64,
+        buyer: &AccountId,
+        token: &AccountId,
+        amount: U128,
+    ) -> PromiseOrValue<U128> {
+        // Every rejection returns the whole amount, so a buyer whose purchase did not go
+        // through is refunded in full rather than part-charged.
+        let Some((seller, price, excess)) =
+            self.settle_purchase(invoice_id, buyer, token, amount.0)
+        else {
+            return PromiseOrValue::Value(amount);
+        };
+
+        PromiseOrValue::Promise(
+            ext_ft_core::ext(token.clone())
+                .with_attached_deposit(ONE_YOCTO)
+                .with_static_gas(GAS_FT_TRANSFER)
+                .ft_transfer(
+                    seller.clone(),
+                    U128(price),
+                    Some(format!("ileri invoice {invoice_id} sale")),
+                )
+                .then(
+                    Self::ext(env::current_account_id())
+                        .with_static_gas(GAS_ON_PAYOUT)
+                        .on_payout(seller, token.clone(), U128(price), U128(excess)),
+                ),
+        )
+    }
+
     fn credit_claimable(&mut self, account: AccountId, token: AccountId, amount: u128) {
         let key = (account, token);
         let current = self.claimable.get(&key).copied().unwrap_or(0);

@@ -14,3 +14,8 @@ pub const GAS_FT_TRANSFER: Gas = Gas::from_tgas(10);
 pub const GAS_FT_STORAGE_DEPOSIT: Gas = Gas::from_tgas(10);
 pub const GAS_ON_PAYOUT: Gas = Gas::from_tgas(10);
 pub const GAS_ON_WITHDRAW_RESOLVE: Gas = Gas::from_tgas(10);
+
+/// Forwarded to a receiving contract's `nft_on_transfer`. Generous, because the receiver
+/// may itself make cross-contract calls before answering.
+pub const GAS_NFT_ON_TRANSFER: Gas = Gas::from_tgas(25);
+pub const GAS_NFT_RESOLVE_TRANSFER: Gas = Gas::from_tgas(10);
