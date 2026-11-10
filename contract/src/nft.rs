@@ -82,8 +82,15 @@ impl NonFungibleTokenEnumeration for Contract {
 
 #[near]
 impl NonFungibleTokenMetadataProvider for Contract {
+    /// NEP-177 requires a non-optional return, so this cannot follow the usual
+    /// "views return Option" rule. The value is set in `init` and never cleared, and
+    /// `PanicOnDefault` guarantees `init` ran, so the invariant holds; `expect` states it
+    /// rather than leaving a bare unwrap to be read as an oversight.
     fn nft_metadata(&self) -> NFTContractMetadata {
-        self.nft_metadata.get().clone().unwrap()
+        self.nft_metadata
+            .get()
+            .clone()
+            .expect("nft metadata is set by init and never cleared")
     }
 }
 

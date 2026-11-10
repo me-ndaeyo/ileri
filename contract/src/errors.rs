@@ -43,10 +43,10 @@ pub const E_BAD_ACTION: &str = "E_BAD_ACTION: action must be accept or reject";
 pub const E_NOTHING_CLAIMABLE: &str = "E_NOTHING_CLAIMABLE: no claimable balance for that token";
 
 // NFT
+// There is deliberately no approvals error: NEP-178 is disabled by constructing the
+// token with no approval prefix, so no code path exists that could reject an approval.
 pub const E_TRANSFER_NOT_ALLOWED: &str =
     "E_TRANSFER_NOT_ALLOWED: invoice NFTs cannot be transferred yet";
-pub const E_APPROVALS_DISABLED: &str =
-    "E_APPROVALS_DISABLED: approvals are disabled so no third party can move an invoice";
 
 // Arithmetic
 pub const E_OVERFLOW: &str = "E_OVERFLOW: arithmetic overflow";

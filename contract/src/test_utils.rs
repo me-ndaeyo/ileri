@@ -250,3 +250,10 @@ pub fn set_callback_context(result: near_sdk::PromiseResult) {
         vec![result]
     );
 }
+
+/// Install a context at an explicit block timestamp, for testing derived Overdue.
+pub fn set_context_at(predecessor: &str, timestamp: u64) {
+    let mut builder = context(predecessor);
+    builder.block_timestamp(timestamp);
+    testing_env!(builder.build());
+}

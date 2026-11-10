@@ -8,14 +8,6 @@
 //! This file holds the state and the initializer. Behaviour lives in sibling modules,
 //! each contributing its own `#[near] impl Contract` block.
 
-// SCAFFOLDING, REMOVE BEFORE STEP 1 IS DONE.
-// `errors.rs` is a complete registry of the contract's failure modes and `gas.rs` of its
-// budgets, so both run ahead of the handlers that reference them while step 1 is in
-// progress. Deleting this attribute is a step-1 exit criterion: anything still reported
-// unused at that point is either a check that was never wired up or an error that should
-// not exist.
-#![allow(dead_code)]
-
 mod actions;
 mod admin;
 mod errors;
