@@ -16,15 +16,18 @@
 // not exist.
 #![allow(dead_code)]
 
+mod actions;
 mod admin;
 mod errors;
 mod gas;
 mod guards;
+mod invite;
 mod lifecycle;
 mod math;
 mod nft;
 mod storage;
 mod types;
+mod views;
 
 #[cfg(test)]
 mod test_utils;

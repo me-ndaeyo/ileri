@@ -4,6 +4,7 @@
 //! the same bytes.
 
 use ed25519_dalek::{Signer, SigningKey};
+use near_sdk::json_types::Base64VecU8;
 use near_sdk::test_utils::VMContextBuilder;
 use near_sdk::{AccountId, NearToken, PublicKey, testing_env};
 
@@ -179,4 +180,19 @@ pub fn transfers() -> Vec<(AccountId, u128)> {
         }
     }
     out
+}
+
+/// Sign the message the contract itself publishes for (id, who, action).
+///
+/// Positive tests go through `invite_message` on purpose: if the view and the verifier
+/// ever disagree, these tests fail instead of silently agreeing on a wrong format.
+pub fn signed_for(contract: &Contract, id: u64, who: &str, action: &str) -> Base64VecU8 {
+    let message = contract.invite_message(id.into(), acc(who), action.to_string());
+    sign(&invite_signing_key(), &message).into()
+}
+
+/// Sign an arbitrary message with the trusted invite key, for tests that need a
+/// well-formed signature over the *wrong* content.
+pub fn signed_raw(message: &str) -> Base64VecU8 {
+    sign(&invite_signing_key(), message).into()
 }

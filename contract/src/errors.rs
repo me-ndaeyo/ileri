@@ -23,6 +23,8 @@ pub const E_DEPOSIT_TOO_SMALL: &str =
 pub const E_NO_INVOICE: &str = "E_NO_INVOICE: no invoice with that id";
 pub const E_NOT_ISSUER: &str = "E_NOT_ISSUER: only the issuer can do this";
 pub const E_NOT_HOLDER: &str = "E_NOT_HOLDER: only the current holder can do this";
+pub const E_NOT_EXPECTED_CLIENT: &str =
+    "E_NOT_EXPECTED_CLIENT: this invoice names a different client";
 pub const E_ISSUER_CANNOT_ACT_AS_CLIENT: &str =
     "E_ISSUER_CANNOT_ACT_AS_CLIENT: the issuer cannot accept or reject their own invoice";
 
