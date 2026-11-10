@@ -6,8 +6,9 @@ edition = "2024"
 resolver = "3"
 rust-version = "1.95"
 license = "MIT"
-# TODO(before deploy): set this to the real GitHub URL. NEP-330 exposes it via
-# `contract_source_metadata`, and reproducible-build verification resolves source through it.
+# Confirmed public. NEP-330 bakes this into the wasm and exposes it via the
+# `contract_source_metadata` view; SourceScan resolves source through it to verify that a
+# deployed contract matches this repo, so it must stay accurate.
 repository = "https://github.com/me-ndaeyo/ileri"
 
 [lib]
