@@ -1,0 +1,7 @@
+# Pinned to the installed toolchain, which also matches the rust version inside the
+# `sourcescan/cargo-near:*-rust-1.99.1` image used for reproducible builds, so a local
+# build and a verifiable build agree.
+[toolchain]
+channel = "1.99.1"
+components = ["rustfmt", "clippy", "rust-analyzer"]
+targets = ["wasm32-unknown-unknown"]

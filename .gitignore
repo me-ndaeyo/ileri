@@ -1,0 +1,25 @@
+# Secrets — never commit. .env.example holds names only.
+.env
+.env.*
+!.env.example
+
+# Rust / contract
+contract/target/
+**/*.rs.bk
+*.wasm
+
+# Node / app
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+.pnpm-store/
+
+# Editors and OS
+.DS_Store
+.idea/
+*.swp
+
+# Local scratch
+/tmp/
