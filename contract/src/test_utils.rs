@@ -4,7 +4,9 @@
 //! the same bytes.
 
 use ed25519_dalek::{Signer, SigningKey};
-use near_sdk::json_types::Base64VecU8;
+use near_contract_standards::fungible_token::receiver::FungibleTokenReceiver;
+use near_sdk::PromiseOrValue;
+use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::test_utils::VMContextBuilder;
 use near_sdk::{AccountId, NearToken, PublicKey, testing_env};
 
@@ -207,4 +209,44 @@ pub fn force_status(contract: &mut Contract, id: u64, status: Status, paid: u128
         invoice.status = status;
         invoice.paid = paid;
     }
+}
+
+/// The amount `ft_on_transfer` reported as unused, or `None` when it returned a promise.
+///
+/// A promise means the payment was accepted and the unused amount comes from the final
+/// callback's return value instead, per NEP-141.
+pub fn unused(result: PromiseOrValue<U128>) -> Option<u128> {
+    match result {
+        PromiseOrValue::Value(value) => Some(value.0),
+        PromiseOrValue::Promise(_) => None,
+    }
+}
+
+/// Call `ft_on_transfer` as `token` would, with `payer` as the NEP-141 sender.
+pub fn pay_as(
+    contract: &mut Contract,
+    token: &str,
+    amount: u128,
+    msg: &str,
+) -> PromiseOrValue<U128> {
+    set_context(token);
+    contract.ft_on_transfer(acc(STRANGER), amount.into(), msg.to_string())
+}
+
+/// The standard `{"action":"pay","invoice_id":"<id>"}` message.
+pub fn pay_msg(id: u64) -> String {
+    format!(r#"{{"action":"pay","invoice_id":"{id}"}}"#)
+}
+
+/// Install a context whose single promise result is `result`, for testing callbacks.
+///
+/// Callbacks are `#[private]`, so the predecessor must be the contract itself.
+pub fn set_callback_context(result: near_sdk::PromiseResult) {
+    testing_env!(
+        context(CONTRACT).build(),
+        near_sdk::test_vm_config(),
+        near_sdk::RuntimeFeesConfig::test(),
+        std::collections::HashMap::default(),
+        vec![result]
+    );
 }

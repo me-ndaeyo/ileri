@@ -25,6 +25,7 @@ mod invite;
 mod lifecycle;
 mod math;
 mod nft;
+mod payments;
 mod storage;
 mod types;
 mod views;
