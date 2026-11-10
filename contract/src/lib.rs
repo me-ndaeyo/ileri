@@ -20,7 +20,10 @@ mod admin;
 mod errors;
 mod gas;
 mod guards;
+mod lifecycle;
 mod math;
+mod nft;
+mod storage;
 mod types;
 
 #[cfg(test)]

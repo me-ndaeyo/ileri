@@ -91,3 +91,92 @@ pub fn setup(who: &str) -> Contract {
     set_context(who);
     contract
 }
+
+/// Enough NEAR to cover an invoice's storage plus one NEP-145 registration, with room to
+/// spare so the refund path is exercised.
+pub fn mint_deposit() -> NearToken {
+    NearToken::from_millinear(50)
+}
+
+/// A due date comfortably in the future relative to [`NOW`].
+pub fn future_due() -> u64 {
+    NOW + 30 * DAY
+}
+
+/// Mint one invoice for `amount` as [`ISSUER`] and return (contract, id).
+pub fn with_invoice(amount: u128) -> (Contract, u64) {
+    let mut contract = setup(OWNER);
+    set_context_with_deposit(ISSUER, mint_deposit());
+    let id = contract.create_invoice(
+        invite_public_key(),
+        acc(USDC),
+        amount.into(),
+        future_due().into(),
+        vec![3u8; 32].into(),
+        None,
+    );
+    (contract, id.0)
+}
+
+/// A cross-contract function call that the call under test scheduled.
+#[derive(Debug)]
+pub struct CallReceipt {
+    pub receiver: AccountId,
+    pub method: String,
+    pub args: String,
+    pub deposit: NearToken,
+}
+
+/// Every cross-contract function call scheduled by the call under test.
+///
+/// `MockAction::FunctionCallWeight` carries `method_name` and `args` as raw bytes, so
+/// matching on the Debug output silently never matches. This decodes them.
+pub fn function_calls() -> Vec<CallReceipt> {
+    let mut out = Vec::new();
+    for receipt in near_sdk::test_utils::get_created_receipts() {
+        for action in &receipt.actions {
+            if let near_sdk::mock::MockAction::FunctionCallWeight {
+                method_name,
+                args,
+                attached_deposit,
+                ..
+            } = action
+            {
+                out.push(CallReceipt {
+                    receiver: receipt.receiver_id.clone(),
+                    method: String::from_utf8_lossy(method_name).into_owned(),
+                    args: String::from_utf8_lossy(args).into_owned(),
+                    deposit: *attached_deposit,
+                });
+            }
+        }
+    }
+    out
+}
+
+/// The one call to `method`, or `None`. Panics if there is more than one.
+pub fn find_call(method: &str) -> Option<CallReceipt> {
+    let mut matches: Vec<CallReceipt> = function_calls()
+        .into_iter()
+        .filter(|c| c.method == method)
+        .collect();
+    assert!(
+        matches.len() <= 1,
+        "expected at most one {method} call, got {}",
+        matches.len()
+    );
+    matches.pop()
+}
+
+/// Every plain NEAR transfer scheduled by the call under test, as (receiver, yocto).
+pub fn transfers() -> Vec<(AccountId, u128)> {
+    let mut out = Vec::new();
+    for receipt in near_sdk::test_utils::get_created_receipts() {
+        for action in &receipt.actions {
+            if let near_sdk::mock::MockAction::Transfer { deposit, .. } = action {
+                out.push((receipt.receiver_id.clone(), deposit.as_yoctonear()));
+            }
+        }
+    }
+    out
+}
