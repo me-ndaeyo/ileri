@@ -241,7 +241,7 @@ Five days, contract first, submission by 18:00 UTC on 14 Nov to leave six hours 
 
 **Wed 11 Nov: contract complete, backend skeleton**
 
-- [ ] Contract: listing and buy, transfer guards, reputation, NEP-297 events; sandbox tests with `near-workspaces`
+- [ ] Contract: listing and buy, transfer guards, reputation, NEP-297 events; sandbox tests with `near-sandbox` + `near-api` (decided 10 Nov: `cargo near new` now scaffolds these rather than `near-workspaces`, so we follow the maintained path)
 - [ ] Next.js app, Postgres schema, auth challenge and verify, drafts and file APIs with encryption, relay API
 
 **Thu 12 Nov: issuer and client**

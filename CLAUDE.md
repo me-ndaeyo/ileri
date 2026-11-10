@@ -15,12 +15,13 @@ Read these before any task. If they disagree, the implementation plan's "Contrac
 
 ```
 contract/        Rust NEAR contract (near-sdk 5.x, near-contract-standards)
-  src/lib.rs
-  tests/         near-workspaces sandbox tests
+  src/           one module per aggregate, each with its own `#[near] impl Contract`
+  tests/         sandbox tests (near-sandbox + near-api)
 app/             Next.js (App Router, TypeScript, Tailwind, shadcn/ui)
   app/           pages: /, /app, /app/new, /app/invoice/[id], /i/[id], /pay/[id], /market, /market/[id], /u/[account]
   app/api/       auth, drafts, invoices, invite, sponsor, relay, pay
   lib/           near.ts, money.ts, crypto.ts, oneclick.ts, db.ts, session.ts
+test-token/      minimal NEP-141 used only by sandbox tests and the testnet walkthrough
 scripts/         deploy and the 1Click payment test
 docs/            the two design docs
 ```
@@ -30,6 +31,9 @@ docs/            the two design docs
 Fill these in as they are created, and keep them working:
 
 - `make test`: contract unit + sandbox tests, then app tests
+- `make test-unit`: unit tests only, the fast loop
+- `make test-sandbox`: end-to-end against a real NEAR node
+- `make lint`: clippy with `-D warnings`
 - `make contract`: build the contract wasm with cargo-near
 - `make dev`: run the app locally
 - `make deploy-testnet`: deploy to the testnet dev account
@@ -44,7 +48,7 @@ Fill these in as they are created, and keep them working:
 - Checked math on every U128. Role checks use `predecessor_account_id()`.
 - Invite private keys live only in the URL fragment and browser memory. Never log them, never send them to the server.
 - The 1Click JWT, relayer key, sponsor key, session secret and file encryption key are server-only. Only `NEXT_PUBLIC_CONTRACT_ID` and `NEXT_PUBLIC_NETWORK` may reach the browser.
-- Do not trust versions or API shapes from memory. Check the current docs for near-sdk, cargo-near, near-workspaces, `@hot-labs/near-connect` and the 1Click API before using them.
+- Do not trust versions or API shapes from memory. Check the current docs for near-sdk, cargo-near, near-sandbox, near-api, `@hot-labs/near-connect` and the 1Click API before using them.
 
 ## How to work
 
