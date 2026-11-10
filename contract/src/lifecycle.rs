@@ -476,19 +476,22 @@ mod tests {
         assert_eq!(contract.require_invoice(id).status, Status::Issued);
     }
 
-    // --- 81: transfers are blocked in step 1 ---
+    // --- a freshly minted invoice is not yet tradable ---
 
     #[test]
-    #[should_panic(expected = "E_TRANSFER_NOT_ALLOWED")]
-    fn nft_transfer_is_blocked() {
+    #[should_panic(expected = "E_NOT_TRADABLE")]
+    fn an_issued_invoice_cannot_be_transferred() {
+        // Before the client accepts there is no agreed obligation for a buyer to rely on.
         let (mut contract, id) = with_invoice(AMOUNT);
+        set_context_with_deposit(ISSUER, NearToken::from_yoctonear(1));
         contract.nft_transfer(acc(STRANGER), Contract::token_id_of(id), None, None);
     }
 
     #[test]
-    #[should_panic(expected = "E_TRANSFER_NOT_ALLOWED")]
-    fn nft_transfer_call_is_blocked() {
+    #[should_panic(expected = "E_NOT_TRADABLE")]
+    fn an_issued_invoice_cannot_be_transferred_with_a_call() {
         let (mut contract, id) = with_invoice(AMOUNT);
+        set_context_with_deposit(ISSUER, NearToken::from_yoctonear(1));
         let _ = contract.nft_transfer_call(
             acc(STRANGER),
             Contract::token_id_of(id),

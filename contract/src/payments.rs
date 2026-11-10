@@ -80,8 +80,9 @@ impl FungibleTokenReceiver for Contract {
 
         let invoice_id = match parsed {
             TransferMsg::Pay { invoice_id } => invoice_id.0,
-            // The marketplace lands in build step 2.
-            TransferMsg::Buy { .. } => return PromiseOrValue::Value(amount),
+            TransferMsg::Buy { invoice_id } => {
+                return self.buy(invoice_id.0, &sender_id, &token, amount);
+            }
         };
 
         let Some(mut invoice) = self.invoices.get(&invoice_id).cloned() else {
@@ -257,6 +258,46 @@ impl Contract {
 }
 
 impl Contract {
+    /// Buy a listed invoice.
+    ///
+    /// The buyer is the NEP-141 `sender_id`, not the predecessor: the predecessor is the
+    /// token contract. That has a consequence worth stating plainly. A purchase routed
+    /// through NEAR Intents would make the Intents contract the sender and therefore the
+    /// new holder of the invoice, so buying must be a direct `ft_transfer_call` from the
+    /// buyer's own account. Paying an invoice has no such constraint, because a payment
+    /// credits the invoice rather than transferring ownership.
+    fn buy(
+        &mut self,
+        invoice_id: u64,
+        buyer: &AccountId,
+        token: &AccountId,
+        amount: U128,
+    ) -> PromiseOrValue<U128> {
+        // Every rejection returns the whole amount, so a buyer whose purchase did not go
+        // through is refunded in full rather than part-charged.
+        let Some((seller, price, excess)) =
+            self.settle_purchase(invoice_id, buyer, token, amount.0)
+        else {
+            return PromiseOrValue::Value(amount);
+        };
+
+        PromiseOrValue::Promise(
+            ext_ft_core::ext(token.clone())
+                .with_attached_deposit(ONE_YOCTO)
+                .with_static_gas(GAS_FT_TRANSFER)
+                .ft_transfer(
+                    seller.clone(),
+                    U128(price),
+                    Some(format!("ileri invoice {invoice_id} sale")),
+                )
+                .then(
+                    Self::ext(env::current_account_id())
+                        .with_static_gas(GAS_ON_PAYOUT)
+                        .on_payout(seller, token.clone(), U128(price), U128(excess)),
+                ),
+        )
+    }
+
     fn credit_claimable(&mut self, account: AccountId, token: AccountId, amount: u128) {
         let key = (account, token);
         let current = self.claimable.get(&key).copied().unwrap_or(0);

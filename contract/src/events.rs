@@ -71,6 +71,26 @@ pub enum Event {
         amount: U128,
     },
 
+    #[event_version("1.0.0")]
+    InvoiceListed {
+        invoice_id: U64,
+        seller: AccountId,
+        price: U128,
+    },
+
+    #[event_version("1.0.0")]
+    InvoiceUnlisted { invoice_id: U64, seller: AccountId },
+
+    /// An invoice changed hands through the built-in marketplace. Future payments on it
+    /// now go to `buyer`.
+    #[event_version("1.0.0")]
+    InvoiceSold {
+        invoice_id: U64,
+        seller: AccountId,
+        buyer: AccountId,
+        price: U128,
+    },
+
     /// The NFT was burned and the record removed.
     #[event_version("1.0.0")]
     InvoiceClosed { invoice_id: U64, by: AccountId },

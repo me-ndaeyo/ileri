@@ -84,6 +84,14 @@ impl Invoice {
         )
     }
 
+    /// Tradable means the NFT may change hands.
+    ///
+    /// Only after the client has accepted: before that there is no agreed obligation for
+    /// a buyer to rely on. And not once fully paid, since there is nothing left to buy.
+    pub fn is_tradable(&self) -> bool {
+        matches!(self.status, Status::Accepted | Status::PartiallyPaid) && !self.is_fully_paid()
+    }
+
     /// Only `Accepted` and `PartiallyPaid` can run overdue. `Issued` has not been agreed
     /// to yet, and `Paid` is done.
     pub fn status_view(&self, now: u64) -> StatusView {

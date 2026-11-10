@@ -16,6 +16,7 @@ mod gas;
 mod guards;
 mod invite;
 mod lifecycle;
+mod market;
 mod math;
 mod nft;
 mod payments;

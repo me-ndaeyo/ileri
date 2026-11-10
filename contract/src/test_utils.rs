@@ -276,3 +276,23 @@ pub fn ileri_event(name: &str) -> Option<near_sdk::serde_json::Value> {
         .into_iter()
         .find(|e| e["standard"] == "ileri" && e["event"] == name)
 }
+
+/// NEP-171 requires exactly 1 yocto on a transfer.
+pub fn one_yocto() -> NearToken {
+    NearToken::from_yoctonear(1)
+}
+
+/// An accepted, and therefore tradable, invoice held by [`ISSUER`].
+pub fn with_tradable_invoice(amount: u128) -> (Contract, u64) {
+    let (mut contract, id) = with_invoice(amount);
+    force_status(&mut contract, id, Status::Accepted, 0);
+    (contract, id)
+}
+
+/// The NEP-171 `nft_transfer` events emitted by the call under test.
+pub fn nft_transfer_events() -> Vec<near_sdk::serde_json::Value> {
+    events()
+        .into_iter()
+        .filter(|e| e["standard"] == "nep171" && e["event"] == "nft_transfer")
+        .collect()
+}
