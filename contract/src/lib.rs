@@ -11,6 +11,7 @@
 mod actions;
 mod admin;
 mod errors;
+mod events;
 mod gas;
 mod guards;
 mod invite;
@@ -18,6 +19,7 @@ mod lifecycle;
 mod math;
 mod nft;
 mod payments;
+mod reputation;
 mod storage;
 mod types;
 mod views;

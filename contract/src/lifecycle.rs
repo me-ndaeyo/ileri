@@ -8,6 +8,7 @@ use near_sdk::{AccountId, NearToken, Promise, PublicKey, env, near};
 use crate::errors::{
     E_AMOUNT_ZERO, E_CLIENT_IS_ISSUER, E_DUE_DATE_PAST, E_NOT_HOLDER, E_TOKEN_NOT_ALLOWED,
 };
+use crate::events::Event;
 use crate::gas::{FT_STORAGE_DEPOSIT, GAS_FT_STORAGE_DEPOSIT};
 use crate::guards::caller;
 use crate::storage::{StorageMeter, charge_and_refund};
@@ -97,6 +98,17 @@ impl Contract {
             invoice.storage_deposit = storage_cost;
         }
 
+        self.bump_reputation(&issuer, |rep| rep.issued += 1);
+
+        Event::InvoiceCreated {
+            invoice_id: id.into(),
+            issuer: issuer.clone(),
+            token: token.clone(),
+            amount,
+            due_date,
+        }
+        .emit();
+
         // Register the issuer on the payment token so the first payout can be pushed
         // instead of landing in `claimable`. Detached on purpose: `registration_only`
         // makes the token refund the deposit if the account is already registered, and a
@@ -122,8 +134,16 @@ impl Contract {
         self.assert_issued(&invoice);
         self.assert_nothing_paid(&invoice);
 
+        let issuer = invoice.issuer.clone();
         invoice.status = Status::Cancelled;
         self.invoices.insert(id, invoice);
+
+        self.bump_reputation(&issuer, |rep| rep.cancelled += 1);
+        Event::InvoiceCancelled {
+            invoice_id: id.into(),
+            issuer,
+        }
+        .emit();
     }
 
     /// Close a finished invoice: burn the NFT, drop the record and return the storage
@@ -160,6 +180,12 @@ impl Contract {
                 .transfer(NearToken::from_yoctonear(invoice.storage_deposit))
                 .detach();
         }
+
+        Event::InvoiceClosed {
+            invoice_id: id.into(),
+            by: caller(),
+        }
+        .emit();
     }
 }
 
