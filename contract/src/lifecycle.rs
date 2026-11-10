@@ -3,9 +3,11 @@
 use near_contract_standards::storage_management::ext_storage_management;
 use near_sdk::json_types::{Base64VecU8, U64, U128};
 use near_sdk::store::Vector;
-use near_sdk::{AccountId, PublicKey, env, near};
+use near_sdk::{AccountId, NearToken, Promise, PublicKey, env, near};
 
-use crate::errors::{E_AMOUNT_ZERO, E_CLIENT_IS_ISSUER, E_DUE_DATE_PAST, E_TOKEN_NOT_ALLOWED};
+use crate::errors::{
+    E_AMOUNT_ZERO, E_CLIENT_IS_ISSUER, E_DUE_DATE_PAST, E_NOT_HOLDER, E_TOKEN_NOT_ALLOWED,
+};
 use crate::gas::{FT_STORAGE_DEPOSIT, GAS_FT_STORAGE_DEPOSIT};
 use crate::guards::caller;
 use crate::storage::{StorageMeter, charge_and_refund};
@@ -106,6 +108,58 @@ impl Contract {
             .detach();
 
         id.into()
+    }
+
+    /// Void an invoice the issuer no longer wants to send.
+    ///
+    /// Only while `Issued` and only before any money has arrived. Cancelling is a
+    /// courtesy to the client, not a way to escape a payment already in flight.
+    pub fn cancel_invoice(&mut self, id: U64) {
+        let id = id.0;
+        let mut invoice = self.require_invoice(id);
+
+        self.assert_issuer(&invoice);
+        self.assert_issued(&invoice);
+        self.assert_nothing_paid(&invoice);
+
+        invoice.status = Status::Cancelled;
+        self.invoices.insert(id, invoice);
+    }
+
+    /// Close a finished invoice: burn the NFT, drop the record and return the storage
+    /// deposit to the issuer who paid it.
+    ///
+    /// The issuer closes a `Rejected` or `Cancelled` invoice, since nothing was ever
+    /// owed. The current *holder* closes a `Paid` one, because by then they may have
+    /// bought it, and they are the party whose asset is being destroyed. The refund still
+    /// goes to the issuer either way: they funded the storage.
+    ///
+    /// Removing the record is what makes the refund happen exactly once; a second call
+    /// finds no invoice.
+    pub fn close_invoice(&mut self, id: U64) {
+        let id = id.0;
+        let invoice = self.require_invoice(id);
+
+        self.assert_final(&invoice);
+        match invoice.status {
+            Status::Paid => self.assert_holder(id),
+            _ => self.assert_issuer(&invoice),
+        }
+
+        let holder = match self.holder_of(id) {
+            Some(holder) => holder,
+            None => env::panic_str(E_NOT_HOLDER),
+        };
+
+        self.burn_invoice_nft(id, &holder);
+        self.invoices.remove(&id);
+        self.listed.remove(&id);
+
+        if invoice.storage_deposit > 0 {
+            Promise::new(invoice.issuer.clone())
+                .transfer(NearToken::from_yoctonear(invoice.storage_deposit))
+                .detach();
+        }
     }
 }
 
@@ -425,5 +479,197 @@ mod tests {
             contract.require_invoice(999)
         }));
         assert!(result.is_err(), "unknown ids must not resolve");
+    }
+
+    // --- 61 to 64: cancel ---
+
+    #[test]
+    fn the_issuer_can_cancel_an_unpaid_issued_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        set_context(ISSUER);
+        contract.cancel_invoice(id.into());
+        assert_eq!(contract.require_invoice(id).status, Status::Cancelled);
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_ISSUER")]
+    fn a_stranger_cannot_cancel() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        set_context(STRANGER);
+        contract.cancel_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_ISSUER")]
+    fn the_client_cannot_cancel() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        set_context(CLIENT);
+        contract.cancel_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_ALREADY_PAID_PART")]
+    fn cannot_cancel_once_money_has_arrived() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        force_status(&mut contract, id, Status::Issued, 1);
+        set_context(ISSUER);
+        contract.cancel_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_ISSUED")]
+    fn cannot_cancel_a_cancelled_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        set_context(ISSUER);
+        contract.cancel_invoice(id.into());
+        contract.cancel_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_ISSUED")]
+    fn cannot_cancel_an_accepted_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        force_status(&mut contract, id, Status::Accepted, 0);
+        set_context(ISSUER);
+        contract.cancel_invoice(id.into());
+    }
+
+    // --- 68 to 74: close ---
+
+    fn assert_burned(contract: &Contract, id: u64) {
+        assert_eq!(contract.nft_total_supply(), 0.into());
+        assert!(contract.nft_token(Contract::token_id_of(id)).is_none());
+        assert!(contract.holder_of(id).is_none());
+        assert!(
+            contract
+                .nft_tokens_for_owner(acc(ISSUER), None, None)
+                .is_empty(),
+            "the per-owner index must not keep a dangling entry"
+        );
+    }
+
+    #[test]
+    fn the_issuer_closes_a_cancelled_invoice_and_gets_the_storage_back() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        let deposit = contract.require_invoice(id).storage_deposit;
+
+        set_context(ISSUER);
+        contract.cancel_invoice(id.into());
+        contract.close_invoice(id.into());
+
+        assert_burned(&contract, id);
+        assert!(contract.invoices.get(&id).is_none(), "the record is gone");
+
+        let refunds: Vec<u128> = transfers()
+            .into_iter()
+            .filter(|(to, _)| to == &acc(ISSUER))
+            .map(|(_, amount)| amount)
+            .collect();
+        assert_eq!(refunds, vec![deposit], "exactly the measured storage, once");
+    }
+
+    #[test]
+    fn the_issuer_closes_a_rejected_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        force_status(&mut contract, id, Status::Rejected, 0);
+        set_context(ISSUER);
+        contract.close_invoice(id.into());
+        assert_burned(&contract, id);
+    }
+
+    #[test]
+    fn the_holder_closes_a_paid_invoice_and_the_issuer_is_still_refunded() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        let deposit = contract.require_invoice(id).storage_deposit;
+        force_status(&mut contract, id, Status::Paid, AMOUNT);
+
+        // The issuer is still the holder here, having never sold it.
+        set_context(ISSUER);
+        contract.close_invoice(id.into());
+
+        assert_burned(&contract, id);
+        let refunds: Vec<u128> = transfers()
+            .into_iter()
+            .filter(|(to, _)| to == &acc(ISSUER))
+            .map(|(_, amount)| amount)
+            .collect();
+        assert_eq!(
+            refunds,
+            vec![deposit],
+            "storage goes back to whoever funded it"
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_HOLDER")]
+    fn a_non_holder_cannot_close_a_paid_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        force_status(&mut contract, id, Status::Paid, AMOUNT);
+        set_context(STRANGER);
+        contract.close_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_ISSUER")]
+    fn a_non_issuer_cannot_close_a_cancelled_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        force_status(&mut contract, id, Status::Cancelled, 0);
+        set_context(STRANGER);
+        contract.close_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_FINAL")]
+    fn cannot_close_an_issued_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        set_context(ISSUER);
+        contract.close_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_FINAL")]
+    fn cannot_close_a_part_paid_invoice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        force_status(&mut contract, id, Status::PartiallyPaid, 1);
+        set_context(ISSUER);
+        contract.close_invoice(id.into());
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NO_INVOICE")]
+    fn the_storage_refund_cannot_be_claimed_twice() {
+        let (mut contract, id) = with_invoice(AMOUNT);
+        set_context(ISSUER);
+        contract.cancel_invoice(id.into());
+        contract.close_invoice(id.into());
+        // The record is gone, so there is nothing left to refund against.
+        contract.close_invoice(id.into());
+    }
+
+    #[test]
+    fn closing_one_invoice_leaves_the_others_alone() {
+        let mut contract = setup(OWNER);
+        set_context_with_deposit(ISSUER, mint_deposit());
+        let first = create(&mut contract, AMOUNT, future_due());
+        set_context_with_deposit(ISSUER, mint_deposit());
+        let second = create(&mut contract, AMOUNT, future_due());
+
+        set_context(ISSUER);
+        contract.cancel_invoice(first.into());
+        contract.close_invoice(first.into());
+
+        assert!(contract.invoices.get(&first).is_none());
+        assert_eq!(contract.require_invoice(second).status, Status::Issued);
+        assert_eq!(contract.nft_total_supply(), 1.into());
+        assert_eq!(contract.holder_of(second), Some(acc(ISSUER)));
+        // The index is append-only, so the closed id stays and views skip it.
+        let indexed: Vec<u64> = contract
+            .by_issuer
+            .get(&acc(ISSUER))
+            .unwrap()
+            .iter()
+            .copied()
+            .collect();
+        assert_eq!(indexed, vec![first, second]);
     }
 }

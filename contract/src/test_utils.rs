@@ -9,6 +9,7 @@ use near_sdk::test_utils::VMContextBuilder;
 use near_sdk::{AccountId, NearToken, PublicKey, testing_env};
 
 use crate::Contract;
+use crate::types::Status;
 
 pub const CONTRACT: &str = "ileri.near";
 pub const OWNER: &str = "owner.near";
@@ -195,4 +196,15 @@ pub fn signed_for(contract: &Contract, id: u64, who: &str, action: &str) -> Base
 /// well-formed signature over the *wrong* content.
 pub fn signed_raw(message: &str) -> Base64VecU8 {
     sign(&invite_signing_key(), message).into()
+}
+
+/// Force an invoice into a terminal state directly.
+///
+/// Used by tests for behaviour that is downstream of states `ft_on_transfer` produces,
+/// so they do not have to wait on the payment path being built.
+pub fn force_status(contract: &mut Contract, id: u64, status: Status, paid: u128) {
+    if let Some(invoice) = contract.invoices.get_mut(&id) {
+        invoice.status = status;
+        invoice.paid = paid;
+    }
 }
