@@ -15,6 +15,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 
 const COOKIE = "ileri_session";
 const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
@@ -94,8 +95,16 @@ export async function clearSession(): Promise<void> {
   store.delete(COOKIE);
 }
 
-/** The signed-in account, or `null`. */
+/**
+ * The signed-in account, or `null`.
+ *
+ * `connection()` first, because verifying a session compares its expiry against the
+ * clock, and Cache Components rightly refuses to run `Date.now()` while prerendering: a
+ * timestamp baked into a static shell would be wrong for every later request. This says
+ * "wait for a real request", so the caller must sit inside a `<Suspense>` boundary.
+ */
 export async function currentAccount(): Promise<string | null> {
+  await connection();
   const store = await cookies();
   return parseSession(store.get(COOKIE)?.value)?.accountId ?? null;
 }

@@ -6,17 +6,24 @@
  * One `NearConnector` for the page's lifetime, created lazily so importing this module
  * does not start loading wallet machinery on pages that never need it.
  *
- * Checked against @hot-labs/near-connect 0.12.0 rather than assumed: the entry point is
- * `NearConnector`, and `signInAndSignMessage` returns accounts that already carry a
- * `SignedMessage`, so connecting and proving control happen in one wallet prompt instead
- * of two.
+ * The shape of this was checked against @hot-labs/near-connect 0.12.0, and it is not
+ * what it first looks like. `signMessageParams` is passed to `connect`, not to a
+ * separate call: the connector then filters the wallet picker down to wallets that
+ * support `signInAndSignMessage`, and the signed message comes back through the
+ * `wallet:signInAndSignMessage` **event** rather than as a return value. Calling
+ * `wallet.signInAndSignMessage()` after a plain `connect()` leaves the picker open
+ * forever, because the wallet has already finished and nothing is listening.
  */
 
 import { NearConnector } from "@hot-labs/near-connect";
+import type { AccountWithSignedMessage } from "@hot-labs/near-connect";
 import { publicEnv } from "./env";
 
 /** Must match the `recipient` the server binds into the NEP-413 payload. */
 export const RECIPIENT = "ileri";
+
+/** How long to wait for someone to approve in their wallet before giving up. */
+const WALLET_TIMEOUT_MS = 180_000;
 
 let connector: NearConnector | undefined;
 
@@ -27,21 +34,17 @@ export function getConnector(): NearConnector {
 
 export interface SignInResult {
   accountId: string;
-  publicKey: string;
-  signature: string;
-  nonce: string;
-  message: string;
 }
 
 /**
  * Connect a wallet and sign in.
  *
  * The server chooses the nonce and the server verifies the result, so nothing here is
- * trusted: this function only carries bytes between the wallet and the API.
+ * trusted: this only carries bytes between the wallet and the API.
  */
 export async function signIn(): Promise<SignInResult> {
-  // Ask for the challenge first. If the user abandons the wallet prompt the nonce simply
-  // expires unused, which costs nothing.
+  // Ask for the challenge first. If the user abandons the wallet prompt, the nonce
+  // simply expires unused, which costs nothing.
   const challenge = await fetch("/api/auth/challenge", { method: "POST" });
   if (!challenge.ok) throw new Error("Could not start sign in");
   const { nonce, message, recipient } = (await challenge.json()) as {
@@ -50,28 +53,42 @@ export async function signIn(): Promise<SignInResult> {
     recipient: string;
   };
 
-  const wallet = await getConnector().connect();
-  const accounts = await wallet.signInAndSignMessage({
-    messageParams: {
-      message,
-      recipient,
-      // The server's nonce, as the 32 raw bytes NEP-413 requires.
-      nonce: hexToBytes(nonce),
-    },
+  const instance = getConnector();
+
+  // Listen before connecting. The event can fire before `connect` resolves, and
+  // registering afterwards would miss it.
+  const signed = new Promise<AccountWithSignedMessage>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("Timed out waiting for your wallet")),
+      WALLET_TIMEOUT_MS,
+    );
+
+    instance.once("wallet:signInAndSignMessage", ({ accounts, success }) => {
+      clearTimeout(timer);
+      const account = accounts?.[0];
+      if (!success || !account?.signedMessage) {
+        reject(new Error("Your wallet did not sign the message"));
+        return;
+      }
+      resolve(account);
+    });
   });
 
-  const account = accounts[0];
-  if (!account?.signedMessage) {
-    throw new Error("That wallet did not return a signed message");
-  }
+  // Passing `signMessageParams` is what makes this one prompt rather than two, and
+  // limits the picker to wallets that can do it.
+  await instance.connect({
+    signMessageParams: { message, recipient, nonce: hexToBytes(nonce) },
+  });
+
+  const { signedMessage } = await signed;
 
   const verify = await fetch("/api/auth/verify", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      accountId: account.signedMessage.accountId,
-      publicKey: account.signedMessage.publicKey,
-      signature: account.signedMessage.signature,
+      accountId: signedMessage.accountId,
+      publicKey: signedMessage.publicKey,
+      signature: signedMessage.signature,
       nonce,
       message,
     }),
@@ -84,24 +101,18 @@ export async function signIn(): Promise<SignInResult> {
     throw new Error(error ?? "Sign in failed");
   }
 
-  return {
-    accountId: account.signedMessage.accountId,
-    publicKey: account.signedMessage.publicKey,
-    signature: account.signedMessage.signature,
-    nonce,
-    message,
-  };
+  return { accountId: signedMessage.accountId };
 }
 
 export async function signOut(): Promise<void> {
-  // Clear our session first. If the wallet disconnect fails the user is still signed
-  // out of the app, which is the half that matters.
+  // Clear our session first. If the wallet refuses to disconnect, the user is still
+  // signed out of the app, which is the half that matters.
   await fetch("/api/auth/logout", { method: "POST" });
   try {
     const { wallet } = await getConnector().getConnectedWallet();
     await getConnector().disconnect(wallet);
   } catch {
-    // No wallet connected, or it refused. Either way the session is gone.
+    // No wallet connected, or it declined. Either way the session is gone.
   }
 }
 
