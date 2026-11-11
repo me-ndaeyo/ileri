@@ -54,6 +54,8 @@ Fill these in as they are created, and keep them working:
 
 - Contract first, tests first. Each contract method gets tests for the happy path, every role check and every rejected state before moving on.
 - Small commits with clear messages. One feature per commit.
+- Conventional Commits: `type: subject`, blank line, then a body explaining why. Types: `feat`, `fix`, `chore`, `refactor`, `style`, `test`, `docs`, `perf`. No attribution trailers of any kind.
+- Work on a branch per piece of work, named for the change (`feat/contract-complete`), never for a plan step. Open a PR into `master`; never push to `master` directly.
 - After each step, run `make test` and tell me what passed and what is next.
 - When something in the docs is ambiguous, ask instead of guessing.
 - UI copy: sentence case, plain words, no em dashes, no all-caps labels. An action keeps one name through the flow ("Accept invoice", "Invoice accepted").
