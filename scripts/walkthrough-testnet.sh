@@ -49,6 +49,11 @@ view() {
 }
 
 # A change call. Quiet unless it fails, since the chatter buries the assertions.
+#
+# Deliberately not retried. The public testnet RPC drops requests intermittently, but a
+# retry here could double-apply a step whose first attempt actually landed, and an invoice
+# paid twice is a far worse outcome than a failed run. Setup uses `call_idempotent`
+# instead; a failure in the journey itself is information and should stop the script.
 call() { # contract method args gas deposit signer
   if ! near contract call-function as-transaction "$1" "$2" json-args "$3" \
       prepaid-gas "$4" attached-deposit "$5" sign-as "$6" \
@@ -57,6 +62,26 @@ call() { # contract method args gas deposit signer
     tail -20 /tmp/ileri-call.log
     exit 1
   fi
+}
+
+# As `call`, but retried, for setup steps where doing the work twice is harmless.
+#
+# Only safe for `storage_deposit`, which refunds when the account is already registered,
+# and `mint`, where a test account holding extra play money changes nothing. Never use it
+# for anything in the journey.
+call_idempotent() { # contract method args gas deposit signer
+  local attempt
+  for attempt in 1 2 3; do
+    if near contract call-function as-transaction "$1" "$2" json-args "$3" \
+        prepaid-gas "$4" attached-deposit "$5" sign-as "$6" \
+        network-config "$NETWORK" sign-with-legacy-keychain send >/tmp/ileri-call.log 2>&1; then
+      return 0
+    fi
+    [ "$attempt" -lt 3 ] && sleep $(( attempt * 2 ))
+  done
+  bad "$2 failed after 3 attempts"
+  tail -20 /tmp/ileri-call.log
+  exit 1
 }
 
 # `create_invoice` returns the new id on stdout; everything else goes to stderr.
@@ -90,9 +115,9 @@ done
 
 step "Funding the cast with test USDC"
 for who in "$ISSUER" "$CLIENT" "$BUYER"; do
-  call "$TOKEN" storage_deposit "{\"account_id\":\"$who\",\"registration_only\":true}" \
+  call_idempotent "$TOKEN" storage_deposit "{\"account_id\":\"$who\",\"registration_only\":true}" \
     '30 Tgas' '0.0125 NEAR' "$TOKEN"
-  call "$TOKEN" mint "{\"account_id\":\"$who\",\"amount\":\"$FUND\"}" \
+  call_idempotent "$TOKEN" mint "{\"account_id\":\"$who\",\"amount\":\"$FUND\"}" \
     '30 Tgas' '0 NEAR' "$TOKEN"
 done
 ok "each holds $(( FUND / 1000000 )) USDC"
@@ -178,6 +203,9 @@ expect "the seller was paid in the same step" "$(( ISSUER_AFTER - ISSUER_BEFORE 
 step "The rest is paid, and it goes to the buyer"
 BUYER_BEFORE=$(view "$TOKEN" ft_balance_of "{\"account_id\":\"$BUYER\"}" | tr -d '"')
 ISSUER_BEFORE=$(view "$TOKEN" ft_balance_of "{\"account_id\":\"$ISSUER\"}" | tr -d '"')
+# Reputation counters are cumulative and this script is re-runnable, so the only stable
+# assertion is that this settlement added exactly one on-time payment.
+ONTIME_BEFORE=$(json_field "$(view "$CONTRACT" get_reputation "{\"account_id\":\"$CLIENT\"}")" paid_on_time)
 call "$TOKEN" ft_transfer_call \
   "{\"receiver_id\":\"$CONTRACT\",\"amount\":\"$REST\",\"msg\":\"{\\\"action\\\":\\\"pay\\\",\\\"invoice_id\\\":\\\"$ID\\\"}\"}" \
   '300 Tgas' '1 yoctoNEAR' "$CLIENT"
@@ -193,7 +221,9 @@ expect "the issuer got nothing further"    "$(( ISSUER_AFTER - ISSUER_BEFORE ))"
 
 step "Reputation"
 REP=$(view "$CONTRACT" get_reputation "{\"account_id\":\"$CLIENT\"}")
-expect "client recorded as paying on time" "$(json_field "$REP" paid_on_time)" "1"
+expect "client credited with one more on-time payment" \
+  "$(json_field "$REP" paid_on_time)" "$(( ONTIME_BEFORE + 1 ))"
+expect "and nothing recorded as late" "$(json_field "$REP" paid_late)" "0"
 
 # --- result ---------------------------------------------------------------------------
 
