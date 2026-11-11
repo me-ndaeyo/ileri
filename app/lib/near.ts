@@ -181,3 +181,53 @@ export function inviteMessage(
 ) {
   return view<string>(contractId, "invite_message", { id, account, action });
 }
+
+/**
+ * Does `publicKey` exist as an access key on `accountId`?
+ *
+ * The other half of sign-in. A valid NEP-413 signature only proves somebody holds *a*
+ * key; it says nothing about whose. Without this check anyone could generate a keypair,
+ * sign a perfectly valid challenge, and claim to be any account they liked.
+ *
+ * Any access key counts, full-access or function-call. A function-call key still means
+ * the wallet holds something the account granted, which is enough to prove control for
+ * signing in. Permission to act on an invoice is a separate question, decided by the
+ * contract against the caller's account id.
+ */
+export async function accountHasKey(
+  accountId: string,
+  publicKey: string,
+): Promise<boolean> {
+  const response = await fetch(rpcUrl, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "ileri",
+      method: "query",
+      params: {
+        request_type: "view_access_key",
+        finality: "final",
+        account_id: accountId,
+        public_key: publicKey,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    // Fail closed. A sign-in that cannot be verified must be refused, never waved
+    // through because the network was unavailable.
+    throw new NearViewError(`RPC returned ${response.status}`, "view_access_key");
+  }
+
+  const body = await response.json();
+  // A missing key comes back as an error, which is the expected negative answer rather
+  // than a fault. Anything else is a real problem and should not be read as "no".
+  if (body.error) {
+    const text = JSON.stringify(body.error);
+    if (/UNKNOWN_ACCESS_KEY|does not exist|UNKNOWN_ACCOUNT/i.test(text)) return false;
+    throw new NearViewError(text, "view_access_key");
+  }
+  return Boolean(body.result?.permission);
+}
