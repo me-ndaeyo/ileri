@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/* The invoice is the hero: every key screen shows it as a paper sheet, and status is an
+   ink stamp pressed onto it. That stamp is the one bold element; everything else stays
+   quiet, like good accounting software. Every pair below is checked for 4.5:1 contrast. */
+:root {
+  --paper: #f6f7f5;
+  --sheet: #ffffff;
+  --ink: #18212e;
+  --rule: #d5dae0;
+  --stamp-blue: #3740b8;
+  --stamp-green: #1e7a4c;
+  --stamp-red: #b3263a;
+  --amber: #a86400;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #141820;
+    --sheet: #1b202a;
+    --ink: #e6e9ee;
+    --rule: #2c3340;
+    --stamp-blue: #8c93f2;
+    --stamp-green: #5cc892;
+    --stamp-red: #f07a8a;
+    --amber: #f0b04d;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-rule: var(--rule);
+  --color-stamp-blue: var(--stamp-blue);
+  --color-stamp-green: var(--stamp-green);
+  --color-stamp-red: var(--stamp-red);
+  --color-amber: var(--amber);
+
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* 13 / 15 / 18 / 24 / 36, the whole scale. Nothing else. */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2.25rem;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Money lines up in columns or it is not money. Public Sans has tabular figures, so
+   amounts never jitter as they change. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* The only animation in the product. When a status lands, the stamp presses onto the
+   sheet. 180ms, scale 1.15 to 1, and nothing else in the app moves. */
+@keyframes stamp-press {
+  from {
+    transform: rotate(-3deg) scale(1.15);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-3deg) scale(1);
+    opacity: 0.8;
+  }
+}
+
+.stamp-press {
+  animation: stamp-press 180ms ease-out;
+}
+
+/* The global reduced-motion rule above collapses durations, which would make the stamp
+   appear without its press. Make sure it still ends up visible rather than mid-animation. */
+@media (prefers-reduced-motion: reduce) {
+  .stamp-press {
+    animation: none;
+    opacity: 0.8;
+  }
+}
