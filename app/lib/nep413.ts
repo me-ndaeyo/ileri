@@ -21,6 +21,7 @@
  */
 
 import { createHash, createPublicKey, verify as verifySignature } from "node:crypto";
+import { base58Decode, base58Encode } from "./base58";
 
 /** `2^31 + 413`. Keeps the signed payload out of the transaction domain entirely. */
 const NEP413_TAG = 2_147_484_061;
@@ -88,7 +89,9 @@ export function decodePublicKey(publicKey: string): Buffer {
     // so allowing another curve here would be a boundary nothing downstream honours.
     throw new AuthError(`Expected an ed25519 public key, got ${publicKey}`);
   }
-  const raw = base58Decode(body);
+  // The shared decoder is browser-safe and so returns Uint8Array; wrap it for the Node
+  // crypto calls below, which want a Buffer.
+  const raw = Buffer.from(base58Decode(body));
   if (raw.length !== 32) {
     throw new AuthError(`An ed25519 public key is 32 bytes, got ${raw.length}`);
   }
@@ -122,56 +125,6 @@ export function verifyNep413(
   return verifySignature(null, payloadDigest(payload), key, signature);
 }
 
-const BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-
-/** Bitcoin-alphabet base58, matching how NEAR encodes keys. */
-export function base58Decode(input: string): Buffer {
-  const bytes: number[] = [0];
-  for (const character of input) {
-    const digit = BASE58.indexOf(character);
-    if (digit === -1) throw new AuthError(`Not base58: ${JSON.stringify(input)}`);
-
-    let carry = digit;
-    for (let i = 0; i < bytes.length; i++) {
-      carry += bytes[i] * 58;
-      bytes[i] = carry & 0xff;
-      carry >>= 8;
-    }
-    while (carry > 0) {
-      bytes.push(carry & 0xff);
-      carry >>= 8;
-    }
-  }
-
-  // Each leading '1' is a leading zero byte, which the arithmetic above cannot produce.
-  let leadingZeros = 0;
-  for (const character of input) {
-    if (character !== BASE58[0]) break;
-    leadingZeros++;
-  }
-
-  return Buffer.from([...new Array(leadingZeros).fill(0), ...bytes.reverse()]);
-}
-
-export function base58Encode(bytes: Uint8Array): string {
-  if (bytes.length === 0) return "";
-  const digits = [0];
-  for (const byte of bytes) {
-    let carry = byte;
-    for (let i = 0; i < digits.length; i++) {
-      carry += digits[i] << 8;
-      digits[i] = carry % 58;
-      carry = (carry / 58) | 0;
-    }
-    while (carry > 0) {
-      digits.push(carry % 58);
-      carry = (carry / 58) | 0;
-    }
-  }
-  let leading = "";
-  for (const byte of bytes) {
-    if (byte !== 0) break;
-    leading += BASE58[0];
-  }
-  return leading + digits.reverse().map((d) => BASE58[d]).join("");
-}
+// Re-exported so callers that already import these from here keep working, while there
+// is only one implementation.
+export { base58Decode, base58Encode };
