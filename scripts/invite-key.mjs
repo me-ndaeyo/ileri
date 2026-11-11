@@ -38,6 +38,11 @@ function base58Encode(bytes) {
     }
   }
 
+  // Drop the most significant zero digits. The accumulator starts at [0], so a value of
+  // zero would otherwise emit a spurious digit on top of the leading '1's below, and
+  // [0] would encode as "11" rather than "1".
+  while (digits.length > 0 && digits[digits.length - 1] === 0) digits.pop();
+
   // Each leading zero byte is one leading '1', which division cannot represent.
   let leading = "";
   for (const byte of bytes) {
@@ -91,6 +96,14 @@ function selftest() {
     "base58 keeps leading zeros as '1'",
     base58Encode(Buffer.from([0, 0, 1])) === "112",
     base58Encode(Buffer.from([0, 0, 1])),
+  ]);
+
+  // The case the original selftest missed: a zero value must not emit a spurious digit
+  // on top of its leading '1'.
+  checks.push([
+    "base58 of a single zero byte is '1', not '11'",
+    base58Encode(Buffer.from([0])) === "1",
+    base58Encode(Buffer.from([0])),
   ]);
 
   // A NEAR ed25519 key is 32 bytes, which is 43 or 44 base58 characters.

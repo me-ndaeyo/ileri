@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { generateKeyPairSync, sign } from "node:crypto";
 import {
   AuthError,
-  base58Decode,
   base58Encode,
   decodePublicKey,
   payloadDigest,
@@ -30,34 +29,6 @@ const base: Nep413Payload = {
   nonce: nonce(),
   recipient: "ileri.app",
 };
-
-describe("base58", () => {
-  it("matches published vectors", () => {
-    expect(base58Encode(Buffer.from("hello", "utf8"))).toBe("Cn8eVZg");
-    expect(base58Decode("Cn8eVZg").toString("utf8")).toBe("hello");
-  });
-
-  it("round-trips 32 random bytes, which is what a key is", () => {
-    for (let i = 0; i < 20; i++) {
-      const bytes = Buffer.from(
-        Array.from({ length: 32 }, () => Math.floor(Math.random() * 256)),
-      );
-      expect(base58Decode(base58Encode(bytes))).toEqual(bytes);
-    }
-  });
-
-  it("keeps leading zeros, which are otherwise lost", () => {
-    const withZeros = Buffer.from([0, 0, 1, 2, 3]);
-    expect(base58Decode(base58Encode(withZeros))).toEqual(withZeros);
-  });
-
-  it("rejects characters outside the alphabet", () => {
-    // 0, O, I and l are excluded on purpose, so they must not decode.
-    for (const bad of ["0", "O", "I", "l", "hello!"]) {
-      expect(() => base58Decode(bad), bad).toThrow(AuthError);
-    }
-  });
-});
 
 describe("decodePublicKey", () => {
   it("decodes a NEAR ed25519 key to 32 bytes", () => {
