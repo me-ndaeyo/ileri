@@ -61,7 +61,7 @@ clean:
 dev:
 	@echo "app/ arrives at build step 5"
 
-# Interactive on purpose. Choose testnet. Never mainnet without asking first.
-deploy-testnet: contract
-	@echo "Interactive deploy. Select testnet. Never mainnet."
-	cd contract && cargo near deploy
+# Testnet only, and idempotent. Mainnet is deliberately not scripted: those commands
+# are run by hand so each one is a deliberate decision.
+deploy-testnet:
+	./scripts/deploy-testnet.sh
