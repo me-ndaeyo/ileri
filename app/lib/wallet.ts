@@ -123,3 +123,49 @@ function hexToBytes(hex: string): Uint8Array {
   }
   return bytes;
 }
+
+/**
+ * Send a function call through the connected wallet.
+ *
+ * Actions use near-connect's own `ConnectorAction` shape, a plain object, rather than
+ * `@near-js/transactions`'s `Action`. The latter is the type the signature advertises but
+ * the package is not even resolvable here, and a plain object needs no dependency to
+ * build.
+ */
+export async function callContract({
+  receiverId,
+  methodName,
+  args,
+  gas = "100000000000000", // 100 Tgas
+  deposit = "0",
+}: {
+  receiverId: string;
+  methodName: string;
+  args: object;
+  gas?: string;
+  deposit?: string;
+}): Promise<unknown> {
+  const { wallet } = await getConnector().getConnectedWallet();
+  return wallet.signAndSendTransaction({
+    receiverId,
+    actions: [{ type: "FunctionCall", params: { methodName, args, gas, deposit } }],
+  });
+}
+
+/**
+ * Pull the returned value out of a transaction outcome.
+ *
+ * `create_invoice` returns the new id, and the only place it appears is base64 in the
+ * final execution status. Reading it from the outcome avoids a follow-up view call that
+ * could race the indexer.
+ */
+export function returnedValue(outcome: unknown): string | null {
+  const status = (outcome as { status?: { SuccessValue?: string } } | undefined)?.status;
+  if (!status?.SuccessValue) return null;
+  try {
+    // Base64 of the JSON the method returned, so `"7"` arrives with its quotes.
+    return JSON.parse(atob(status.SuccessValue)) as string;
+  } catch {
+    return null;
+  }
+}

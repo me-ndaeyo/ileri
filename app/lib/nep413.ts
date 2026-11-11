@@ -21,7 +21,7 @@
  */
 
 import { createHash, createPublicKey, verify as verifySignature } from "node:crypto";
-import { Base58Error, base58Decode, base58Encode } from "./base58";
+import { base58Decode, base58Encode } from "./base58";
 
 /** `2^31 + 413`. Keeps the signed payload out of the transaction domain entirely. */
 const NEP413_TAG = 2_147_484_061;

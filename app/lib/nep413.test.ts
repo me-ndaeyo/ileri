@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { generateKeyPairSync, sign } from "node:crypto";
 import {
-  AuthError,
   base58Encode,
   decodePublicKey,
   payloadDigest,
