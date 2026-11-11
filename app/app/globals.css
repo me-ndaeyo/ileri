@@ -66,3 +66,29 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* The only animation in the product. When a status lands, the stamp presses onto the
+   sheet. 180ms, scale 1.15 to 1, and nothing else in the app moves. */
+@keyframes stamp-press {
+  from {
+    transform: rotate(-3deg) scale(1.15);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-3deg) scale(1);
+    opacity: 0.8;
+  }
+}
+
+.stamp-press {
+  animation: stamp-press 180ms ease-out;
+}
+
+/* The global reduced-motion rule above collapses durations, which would make the stamp
+   appear without its press. Make sure it still ends up visible rather than mid-animation. */
+@media (prefers-reduced-motion: reduce) {
+  .stamp-press {
+    animation: none;
+    opacity: 0.8;
+  }
+}
