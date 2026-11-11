@@ -1,6 +1,6 @@
 # Ileri. Root task runner spanning the Rust contract and (from step 4) the Next.js app.
 .DEFAULT_GOAL := help
-.PHONY: help setup contract abi test test-unit test-sandbox fmt lint clean dev deploy-testnet walkthrough gate
+.PHONY: help setup contract abi test test-unit test-sandbox app-test fmt lint clean dev deploy-testnet walkthrough gate
 
 help:
 	@printf 'Ileri targets:\n'
@@ -16,6 +16,8 @@ help:
 	@printf '  make clean           remove build artifacts\n'
 	@printf '  make deploy-testnet  deploy contract + test token to testnet, idempotent\n'
 	@printf '  make walkthrough     issue, accept, pay, sell against the deployed contract\n'
+	@printf '  make dev             run the app locally on :3000\n'
+	@printf '  make app-test        app unit tests, lint and typecheck\n'
 
 setup:
 	./scripts/setup-toolchain.sh
@@ -35,6 +37,7 @@ abi: gate
 # CLAUDE.md asks `make test` to run everything. App tests are appended at step 4.
 test: gate
 	cd contract && cargo test
+	cd app && pnpm test
 
 # The fast loop: no node to start, no wasm to build.
 test-unit: gate
@@ -60,7 +63,7 @@ clean:
 	cd test-token && cargo clean
 
 dev:
-	@echo "app/ arrives at build step 5"
+	cd app && pnpm dev
 
 # Testnet only, and idempotent. Mainnet is deliberately not scripted: those commands
 # are run by hand so each one is a deliberate decision.
@@ -71,3 +74,6 @@ deploy-testnet:
 # before spending anything real.
 walkthrough:
 	./scripts/walkthrough-testnet.sh
+
+app-test:
+	cd app && pnpm test && pnpm lint && pnpm typecheck
