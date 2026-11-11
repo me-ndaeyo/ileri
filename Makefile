@@ -1,6 +1,6 @@
 # Ileri. Root task runner spanning the Rust contract and (from step 4) the Next.js app.
 .DEFAULT_GOAL := help
-.PHONY: help setup contract abi test test-unit test-sandbox fmt lint clean dev deploy-testnet gate
+.PHONY: help setup contract abi test test-unit test-sandbox fmt lint clean dev deploy-testnet walkthrough gate
 
 help:
 	@printf 'Ileri targets:\n'
@@ -14,7 +14,8 @@ help:
 	@printf '  make fmt             format Rust sources\n'
 	@printf '  make lint            clippy with warnings as errors\n'
 	@printf '  make clean           remove build artifacts\n'
-	@printf '  make deploy-testnet  interactive deploy, testnet only\n'
+	@printf '  make deploy-testnet  deploy contract + test token to testnet, idempotent\n'
+	@printf '  make walkthrough     issue, accept, pay, sell against the deployed contract\n'
 
 setup:
 	./scripts/setup-toolchain.sh
@@ -65,3 +66,8 @@ dev:
 # are run by hand so each one is a deliberate decision.
 deploy-testnet:
 	./scripts/deploy-testnet.sh
+
+# The whole journey against the deployed contract, asserting at every step. Run this
+# before spending anything real.
+walkthrough:
+	./scripts/walkthrough-testnet.sh
