@@ -10,6 +10,7 @@
  */
 
 import { rpcUrl } from "./env";
+import { CAP } from "@/lib/paginate";
 
 /** Status as the contract stores it. */
 export type Status =
@@ -137,7 +138,7 @@ export function getInvoice(contractId: string, id: string) {
   return view<InvoiceView | null>(contractId, "get_invoice", { id });
 }
 
-export function getListings(contractId: string, fromIndex = "0", limit = 50) {
+export function getListings(contractId: string, fromIndex = "0", limit = CAP) {
   return view<ListingView[]>(contractId, "get_listings", {
     from_index: fromIndex,
     limit,
@@ -148,16 +149,28 @@ export function getListing(contractId: string, id: string) {
   return view<ListingView | null>(contractId, "get_listing", { id });
 }
 
-export function invoicesForIssuer(contractId: string, accountId: string, limit = 50) {
+export function invoicesForIssuer(
+  contractId: string,
+  accountId: string,
+  limit = CAP,
+  fromIndex = "0",
+) {
   return view<InvoiceView[]>(contractId, "invoices_for_issuer", {
     account_id: accountId,
+    from_index: fromIndex,
     limit,
   });
 }
 
-export function invoicesForClient(contractId: string, accountId: string, limit = 50) {
+export function invoicesForClient(
+  contractId: string,
+  accountId: string,
+  limit = CAP,
+  fromIndex = "0",
+) {
   return view<InvoiceView[]>(contractId, "invoices_for_client", {
     account_id: accountId,
+    from_index: fromIndex,
     limit,
   });
 }

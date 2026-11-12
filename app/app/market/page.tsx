@@ -3,11 +3,13 @@ import Link from "next/link";
 import { AccountChip } from "@/components/AccountChip";
 import { Amount } from "@/components/Amount";
 import { AppNav } from "@/components/AppNav";
+import { Pager } from "@/components/Pager";
 import { CardsSkeleton } from "@/components/Skeleton";
 import { StatusPill } from "@/components/StatusPill";
 import { publicEnv } from "@/lib/env";
 import { annualisedDiscount, discountPercent, formatAmount, sum } from "@/lib/money";
 import { getListings, type ListingView } from "@/lib/near";
+import { paginate } from "@/lib/paginate";
 import { currentAccount } from "@/lib/session";
 
 export const metadata = { title: "Market — Ileri" };
@@ -25,7 +27,8 @@ export const metadata = { title: "Market — Ileri" };
  * recourse on a purchase, and somebody deciding to spend money should read that before
  * the returns, not after.
  */
-export default function MarketPage() {
+export default function MarketPage({ searchParams }: PageProps<"/market">) {
+  // Not awaited here: runtime data at the top level would stop the shell prerendering.
   return (
     <div className="flex min-h-full flex-col">
       <Suspense fallback={<AppNav accountId={null} current="market" />}>
@@ -43,18 +46,26 @@ export default function MarketPage() {
             </>
           }
         >
-          <Listings />
+          <Listings searchParams={searchParams} />
         </Suspense>
       </main>
     </div>
   );
 }
 
+/** Nine fills three rows of the grid at desktop width and reads fine at one column. */
+const PER_PAGE = 9;
+
 async function Nav() {
   return <AppNav accountId={await currentAccount()} current="market" />;
 }
 
-async function Listings() {
+async function Listings({
+  searchParams,
+}: {
+  searchParams: PageProps<"/market">["searchParams"];
+}) {
+  const params = await searchParams;
   let listings: ListingView[];
   try {
     listings = await getListings(publicEnv.contractId);
@@ -74,6 +85,7 @@ async function Listings() {
   }
 
   const onOffer = sum(listings.map((l) => l.unpaid));
+  const page = paginate(listings, params.page, PER_PAGE);
 
   return (
     <>
@@ -125,10 +137,18 @@ async function Listings() {
           </div>
 
           <ul className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(20rem,100%),1fr))] gap-5">
-            {listings.map((listing) => (
+            {page.rows.map((listing) => (
               <Card key={listing.invoice.id} listing={listing} />
             ))}
           </ul>
+
+          <Pager
+            page={page}
+            pathname="/market"
+            params={params}
+            paramKey="page"
+            noun="listing"
+          />
         </>
       )}
     </>

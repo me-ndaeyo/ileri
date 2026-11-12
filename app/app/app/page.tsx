@@ -5,6 +5,7 @@ import { Amount } from "@/components/Amount";
 import { AppNav } from "@/components/AppNav";
 import { ClaimPayout } from "@/components/ClaimPayout";
 import { ConnectWallet } from "@/components/ConnectWallet";
+import { Pager } from "@/components/Pager";
 import { LedgerSkeleton } from "@/components/Skeleton";
 import { StatusPill } from "@/components/StatusPill";
 import { publicEnv } from "@/lib/env";
@@ -15,6 +16,7 @@ import {
   invoicesForIssuer,
   type InvoiceView,
 } from "@/lib/near";
+import { paginate } from "@/lib/paginate";
 import { currentAccount } from "@/lib/session";
 
 export const metadata = { title: "Your invoices — Ileri" };
@@ -27,27 +29,33 @@ export const metadata = { title: "Your invoices — Ileri" };
  * way the heading and the nav are prerendered and appear instantly, even though who is
  * signed in cannot be known until the request arrives.
  */
-export default function Dashboard() {
+export default function Dashboard({ searchParams }: PageProps<"/app">) {
+  // `searchParams` is not awaited here, for the same reason `params` is not elsewhere:
+  // it is runtime data, and awaiting it at the top level would stop the shell
+  // prerendering under Cache Components.
   return (
     <div className="flex min-h-full flex-col">
       <Suspense fallback={<AppNav accountId={null} current="invoices" />}>
         <Nav />
       </Suspense>
       <main className="mx-auto w-full max-w-[1080px] flex-1 px-5 py-10">
-        <Suspense fallback={<LedgerSkeleton rows={4} />}>
-          <SignedInArea />
+        <Suspense fallback={<LedgerSkeleton rows={PER_PAGE} />}>
+          <SignedInArea searchParams={searchParams} />
         </Suspense>
       </main>
     </div>
   );
 }
 
+/** Eight rows is about a screen without scrolling past the summary figures. */
+const PER_PAGE = 8;
+
 async function Nav() {
   return <AppNav accountId={await currentAccount()} current="invoices" />;
 }
 
-async function SignedInArea() {
-  const accountId = await currentAccount();
+async function SignedInArea({ searchParams }: { searchParams: PageProps<"/app">["searchParams"] }) {
+  const [accountId, params] = await Promise.all([currentAccount(), searchParams]);
 
   if (!accountId) {
     return (
@@ -132,14 +140,19 @@ async function SignedInArea() {
         </div>
       ) : null}
 
+      {/* Two lists, two parameters, so paging one leaves the other where it was. */}
       <Ledger
         title="Sent"
         invoices={sent}
+        params={params}
+        paramKey="sent"
         empty="You have not sent an invoice yet. The first one takes about a minute."
       />
       <Ledger
         title="Billed to you"
         invoices={received}
+        params={params}
+        paramKey="billed"
         empty="Nothing has been billed to you yet."
       />
     </>
@@ -172,12 +185,17 @@ function Figure({
 function Ledger({
   title,
   invoices,
+  params,
+  paramKey,
   empty,
 }: {
   title: string;
   invoices: InvoiceView[] | null;
+  params: Readonly<Record<string, string | string[] | undefined>>;
+  paramKey: string;
   empty: string;
 }) {
+  const page = paginate(invoices ?? [], params[paramKey], PER_PAGE);
   return (
     <section className="mt-10">
       <div className="flex items-center gap-5">
@@ -198,8 +216,9 @@ function Ledger({
       ) : invoices.length === 0 ? (
         <p className="mt-4 border border-rule bg-sheet p-4 text-xs text-ink/60">{empty}</p>
       ) : (
+        <>
         <ul className="mt-4 border-t border-rule">
-          {invoices.map((invoice) => (
+          {page.rows.map((invoice) => (
             <li key={invoice.id}>
               <Link
                 href={`/app/invoice/${invoice.id}`}
@@ -238,6 +257,14 @@ function Ledger({
             </li>
           ))}
         </ul>
+        <Pager
+          page={page}
+          pathname="/app"
+          params={params}
+          paramKey={paramKey}
+          noun="invoice"
+        />
+        </>
       )}
     </section>
   );
