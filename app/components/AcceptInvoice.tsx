@@ -5,6 +5,7 @@ import { Amount } from "@/components/Amount";
 import { Button } from "@/components/Button";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { SignOutButton } from "@/components/SignOutButton";
 import { documentHashBase64, type InvoiceDocument } from "@/lib/invoice";
 import { decodeSecret, signInviteMessage } from "@/lib/invite";
 import { callContract } from "@/lib/wallet";
@@ -255,7 +256,12 @@ export function AcceptInvoice({
         </div>
       ) : (
         <div className="mt-6">
-          <p className="text-xs text-ink/60">Signed in as {accountId}</p>
+          <p className="flex flex-wrap items-center gap-3 text-xs text-ink/60">
+            <span>Signed in as {accountId}</span>
+            {/* The reason this component needed it: an issuer opening their own invite
+                link has to be able to stop being the issuer. */}
+            <SignOutButton />
+          </p>
           <div className="mt-3 flex flex-wrap gap-3">
             <Button
               onClick={() => act("accept")}

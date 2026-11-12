@@ -121,7 +121,13 @@ rendered from the token id alone for the NFT.
 rejected (ink), cancelled (ink-soft dashed), listed for sale (gold).
 
 **Buttons**: primary is ink filled, secondary is an ink hairline, destructive is an oxblood
-hairline, quiet is text with a rule underline. All at least 44px tall.
+hairline, gold is for listing, quiet is text with a rule underline. All at least 44px tall.
+A busy button shows the hairline spinner and a label saying what is being waited on, since
+almost every action here waits on a wallet window and that wait is seconds.
+
+**Motion**: exactly two animations, and the list is closed. `stamp-press` when a status
+lands, and `spin-hairline` on a busy control. Under reduced motion the stamp appears
+without its press and the spinner becomes a static dot.
 
 **Account chip**: a disc in the account's own derived colour plus the account id in mono, so
 the same person looks the same on every screen.

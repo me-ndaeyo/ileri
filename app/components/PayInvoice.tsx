@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Amount } from "@/components/Amount";
 import { Button, Pending } from "@/components/Button";
 import { ConnectWallet } from "@/components/ConnectWallet";
+import { SignOutButton } from "@/components/SignOutButton";
 import { Stamp } from "@/components/Stamp";
 import { MoneyError, formatAmount, isSettled, parseAmount, toBigInt, unpaid } from "@/lib/money";
 import { getInvoice, view, type InvoiceView } from "@/lib/near";
@@ -78,7 +79,13 @@ export function PayInvoice({
   }
 
   return (
-    <Pay invoice={invoice} owed={owed} contractId={contractId} viewer={viewer} />
+    <>
+      <Pay invoice={invoice} owed={owed} contractId={contractId} viewer={viewer} />
+      <p className="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink/60">
+        <span>Paying as {viewer}</span>
+        <SignOutButton />
+      </p>
+    </>
   );
 }
 

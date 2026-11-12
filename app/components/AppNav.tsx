@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AccountChip } from "@/components/AccountChip";
+import { SignOutButton } from "@/components/SignOutButton";
 
 /**
  * The chrome every signed-in screen shares.
@@ -41,7 +42,10 @@ export function AppNav({
         <span className="flex-1" />
 
         {accountId ? (
-          <AccountChip accountId={accountId} />
+          <span className="flex items-center gap-3">
+            <AccountChip accountId={accountId} />
+            <SignOutButton />
+          </span>
         ) : (
           <span className="text-xs text-ink/60">Not connected</span>
         )}

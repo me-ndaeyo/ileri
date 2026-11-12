@@ -157,8 +157,42 @@ body {
   }
 }
 
-/* The only animation in the product. When a status lands, the stamp presses onto the
-   sheet. 180ms, scale 1.15 to 1, and nothing else in the app moves. */
+/* The spinner on a busy control. A changing label and a dead button say that something
+   is happening, but they say it statically, and a wallet prompt can take seconds: without
+   motion people press again or give up. So this is the second of two animations in the
+   product, and the list is closed at two.
+
+   Drawn as an engraved ring rather than a generic arc: three quarters of a hairline
+   circle, in the current text colour so it works on an ink button and a paper one. */
+@keyframes spin-hairline {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 999px;
+  animation: spin-hairline 700ms linear infinite;
+}
+
+/* Reduced motion already collapses the duration above, which would leave the ring frozen
+   at one angle and reading as a broken glyph. Replace it with a solid dot that simply
+   sits there: it still marks the control as busy without pretending to show progress. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-top-color: currentColor;
+    opacity: 0.5;
+  }
+}
+
+/* The other animation. When a status lands, the stamp presses onto the sheet. 180ms,
+   scale 1.15 to 1. */
 @keyframes stamp-press {
   from {
     transform: rotate(-3deg) scale(1.15);

@@ -12,10 +12,10 @@
  * say is what is being waited on. "Check your wallet" is a different message from
  * "Reading the contract", and the person needs the first one to know to go and look.
  *
- * No spinner. The stamp press is the only motion in the product, and the reduced-motion
- * rule would strip a spinner for a good share of people anyway. A label that changes and
- * a control that visibly cannot be pressed carry the same information and never lie
- * about progress.
+ * The label is paired with a spinner. On its own a changing label says what is happening
+ * but says it statically, and a wallet prompt can take seconds: without motion people
+ * press again or assume it failed. Under reduced motion the ring becomes a static dot,
+ * which still marks the control as busy without pretending to show progress.
  */
 
 const TONES = {
@@ -59,7 +59,14 @@ export function Button({
       aria-live={waiting ? "polite" : undefined}
       className={`min-h-11 border px-4 py-2 text-sm disabled:opacity-50 ${TONES[tone]} ${className}`}
     >
-      {waiting ? busy : children}
+      {waiting ? (
+        <span className="inline-flex items-center gap-2">
+          <span className="spinner" aria-hidden="true" />
+          {busy}
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 }
