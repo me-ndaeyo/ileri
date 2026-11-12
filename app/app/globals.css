@@ -1,50 +1,60 @@
 @import "tailwindcss";
 
-/* The invoice is the hero: every key screen shows it as a paper sheet, and status is an
-   ink stamp pressed onto it. That stamp is the one bold element; everything else stays
-   quiet, like good accounting software. Every pair below is checked for 4.5:1 contrast. */
+/* Bearer instrument. An invoice that pays whoever holds it is a promissory note, so the
+   language is engraved security printing: guilloche, serial numbers, banknote paper, an
+   inked stamp for status. One rule keeps that from becoming costume, and it decides every
+   question below: the document is engraved, the app around it stays a quiet ledger.
+
+   Full reasoning and the canvas it came from: docs/design-system.md */
 :root {
-  --paper: #f6f7f5;
-  --sheet: #ffffff;
-  --ink: #18212e;
-  --rule: #d5dae0;
-  --stamp-blue: #3740b8;
-  --stamp-green: #1e7a4c;
-  --stamp-red: #b3263a;
-  --amber: #a86400;
+  /* Grounds. Warm, because paper is. */
+  --paper: #f4f1e8; /* the desk the sheet lies on */
+  --sheet: #fbfaf5; /* the instrument's own stock, a shade lighter */
+  --wash: #e9e4d6; /* table banding, inert fills, disabled */
+
+  --rule: #cec6b2; /* every hairline and field border, never text */
+  --ink: #171a24; /* text and engraving, 14.9:1 on paper */
+  --ink-soft: #5a5e6b; /* secondary text, still passes at 11px, 5.9:1 */
+
+  /* Status, and status only. Colour in this brand never belongs to the brand. */
+  --stamp-blue: #2a3f7a; /* accepted, and money still crossing chains, 8.1:1 */
+  --stamp-green: #1c5b40; /* paid, and only when paid == amount, 7.6:1 */
+  --stamp-red: #8a2b2b; /* overdue, the seal, destructive actions, 6.4:1 */
+  --gold: #9c7a22; /* listed for sale. The market, and nothing else, 4.6:1 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #141820;
-    --sheet: #1b202a;
-    --ink: #e6e9ee;
-    --rule: #2c3340;
-    --stamp-blue: #8c93f2;
-    --stamp-green: #5cc892;
-    --stamp-red: #f07a8a;
-    --amber: #f0b04d;
-  }
-}
+/* No dark scheme, on purpose. The whole design is a paper document, and there is no such
+   thing as a dark banknote. A second theme invented at speed would be worse than none, so
+   this ships light and says so rather than half-shipping a dark one. */
 
 @theme inline {
   --color-paper: var(--paper);
   --color-sheet: var(--sheet);
-  --color-ink: var(--ink);
+  --color-wash: var(--wash);
   --color-rule: var(--rule);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
   --color-stamp-blue: var(--stamp-blue);
   --color-stamp-green: var(--stamp-green);
   --color-stamp-red: var(--stamp-red);
-  --color-amber: var(--amber);
+  --color-gold: var(--gold);
 
+  /* Three faces. The serif is the instrument's own voice and belongs on the sheet, the
+     sans runs the app, the mono carries anything a machine issued: serials, account ids,
+     hashes. Each has a fallback of close metrics for the moment before the webfont lands. */
   --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* 13 / 15 / 18 / 24 / 36, the whole scale. Nothing else. */
+  /* 13 / 15 / 18 / 24 / 36 / 48 / 68. Nothing else. The top two are for the serif only,
+     where an amount or a page title is the loudest thing on the sheet. */
   --text-xs: 0.8125rem;
   --text-sm: 0.9375rem;
   --text-base: 1.125rem;
   --text-lg: 1.5rem;
   --text-xl: 2.25rem;
+  --text-2xl: 3rem;
+  --text-3xl: 4.25rem;
 }
 
 body {
@@ -56,6 +66,40 @@ body {
    amounts never jitter as they change. */
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* A serial number, on the sheet and in a wallet row. Wide tracking so the digits read as
+   a reference rather than a quantity. */
+.serial {
+  font-family: var(--font-mono);
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Corners are square on documents. A promissory note has never had a rounded one, and
+   this is the utility that says so where a component might otherwise reach for a radius. */
+.document {
+  border-radius: 0;
+}
+
+/* The comb edge: the perforation you tear when a note is cashed or sold. It closes the
+   bottom of the instrument, and nothing else in the app uses it. */
+.comb {
+  height: 0.875rem;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--rule) 0 1px,
+    transparent 1px 7px
+  );
+}
+
+/* Two rules with a hair between them, as on a certificate, to close a section. A single
+   hairline separates rows; this ends them. */
+.double-rule {
+  box-sizing: border-box;
+  height: 4px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
 }
 
 @media (prefers-reduced-motion: reduce) {
