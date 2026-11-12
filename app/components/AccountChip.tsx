@@ -51,7 +51,7 @@ export function AccountChip({
         style={{ background: inkFor(accountId) }}
         aria-hidden="true"
       />
-      <span className="font-mono text-xs">{accountId}</span>
+      <span className="truncate font-mono text-xs">{accountId}</span>
       {note ? <span className="text-xs text-ink/60">{note}</span> : null}
     </span>
   );

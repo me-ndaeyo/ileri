@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AccountChip } from "@/components/AccountChip";
 import { Amount } from "@/components/Amount";
 import { AppNav } from "@/components/AppNav";
-import { LedgerSkeleton } from "@/components/Skeleton";
+import { CardsSkeleton } from "@/components/Skeleton";
 import { StatusPill } from "@/components/StatusPill";
 import { publicEnv } from "@/lib/env";
 import { annualisedDiscount, discountPercent, formatAmount, sum } from "@/lib/money";
@@ -38,7 +38,7 @@ export default function MarketPage() {
             <>
               <h1 className="font-serif text-xl leading-tight">Invoices for sale</h1>
               <div className="mt-8">
-                <LedgerSkeleton rows={3} label="Loading invoices for sale" />
+                <CardsSkeleton cards={3} />
               </div>
             </>
           }
@@ -156,20 +156,22 @@ function Card({ listing }: { listing: ListingView }) {
       >
         <span className="band h-4 w-full" aria-hidden="true" />
 
-        <span className="flex items-start justify-between gap-4 px-5 pt-4">
-          <span>
-            <span className="serial block text-xs">
-              No. {invoice.id.padStart(10, "0")}
+        <span>
+          <span className="flex items-start justify-between gap-4 px-5 pt-4">
+            <span>
+              <span className="serial block text-xs">
+                No. {invoice.id.padStart(10, "0")}
+              </span>
             </span>
-            <span className="mt-1.5 block">
-              {invoice.client ? (
-                <AccountChip accountId={invoice.client} />
-              ) : (
-                <span className="text-xs text-ink/60 italic">no client bound</span>
-              )}
-            </span>
+            <StatusPill status={invoice.status} />
           </span>
-          <StatusPill status={invoice.status} />
+          <span className="mt-1.5 block px-5 pt-2 lg:pt-4">
+            {invoice.client ? (
+              <AccountChip accountId={invoice.client} />
+            ) : (
+              <span className="text-xs text-ink/60 italic">no client bound</span>
+            )}
+          </span>
         </span>
 
         <span className="block px-5 pt-4">
@@ -227,9 +229,8 @@ function Line({
 }) {
   return (
     <span
-      className={`flex items-baseline justify-between gap-4 py-2 text-xs ${
-        last ? "" : "border-b border-rule"
-      }`}
+      className={`flex items-baseline justify-between gap-4 py-2 text-xs ${last ? "" : "border-b border-rule"
+        }`}
     >
       <span className="text-ink/60">{label}</span>
       <span className="tabular">{children}</span>

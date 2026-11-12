@@ -139,6 +139,66 @@ export function LedgerSkeleton({
 }
 
 /**
+ * The market, before the listings arrive.
+ *
+ * Mirrors the card rather than reusing the ledger rows: the market is a grid of cut
+ * stubs, and a skeleton of horizontal rows reflowing into cards is a worse jump than no
+ * skeleton at all. The band and the comb foot are real, so the shape is right the moment
+ * it paints.
+ */
+export function CardsSkeleton({
+  cards = 3,
+  label = "Loading invoices for sale",
+}: {
+  cards?: number;
+  label?: string;
+}) {
+  return (
+    <Busy label={label}>
+      <ul className="grid list-none grid-cols-[repeat(auto-fit,minmax(min(20rem,100%),1fr))] gap-5">
+        {Array.from({ length: cards }, (_, i) => (
+          <li key={i} className="flex flex-col border border-rule bg-sheet">
+            <div className="band h-4 w-full" aria-hidden="true" />
+
+            <div className="flex items-start justify-between gap-4 px-5 pt-4">
+              <div>
+                <Line className="h-3 w-28" />
+                <Line className="mt-2 h-6 w-36 rounded-full" />
+              </div>
+              <Line className="h-5 w-20" />
+            </div>
+
+            <div className="px-5 pt-4">
+              <p className="text-xs text-ink/60">Asking price</p>
+              <Line className="mt-1.5 h-6 w-32" />
+            </div>
+
+            <div className="mt-4 px-5">
+              {["You collect", "Your return", "You wait", "Client's record"].map(
+                (row, j) => (
+                  <div
+                    key={row}
+                    className={`flex items-baseline justify-between gap-4 py-2 ${
+                      j === 3 ? "" : "border-b border-rule"
+                    }`}
+                  >
+                    <span className="text-xs text-ink/60">{row}</span>
+                    <Line className="h-3 w-20" />
+                  </div>
+                ),
+              )}
+            </div>
+
+            <div className="flex-1" />
+            <div className="comb mt-4" aria-hidden="true" />
+          </li>
+        ))}
+      </ul>
+    </Busy>
+  );
+}
+
+/**
  * A bordered panel of fields or actions: the accept box, the pay box, the buy box, the
  * issue form.
  */

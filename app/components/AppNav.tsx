@@ -5,14 +5,20 @@ import { SignOutButton } from "@/components/SignOutButton";
 /**
  * The chrome every signed-in screen shares.
  *
- * It was missing entirely, which is why the inner pages read as a set of unrelated
- * documents: no wordmark, no way back, and no indication of which account you were
- * looking at. That last one matters more here than in most apps, because the same person
- * may hold two accounts and an invoice means something different to each.
+ * Two layouts rather than one that wraps. On a wide screen it is a single sticky row. On a
+ * phone that row had to wrap, which pushed the account and the sign out onto a second line
+ * and ate a chunk of the viewport before any content appeared.
  *
- * Deliberately not a client component and deliberately not given a sign-out button. It
- * takes the account as a prop so a page can render the frame statically and stream only
- * the part that needs the cookie.
+ * So on a phone the top keeps only the wordmark, and everything you reach for moves to a
+ * bar at the bottom: both tabs and the account. That is a better answer than putting only
+ * the account down there, because a bottom bar is for the things you tap and the tabs are
+ * the things you tap. It also puts them in thumb reach rather than at the far top corner.
+ *
+ * Both layouts are in the markup and swapped with a media query rather than measured in
+ * JavaScript, so the right one is in the prerendered HTML and nothing shifts on hydration.
+ *
+ * It takes the account as a prop rather than reading the cookie itself, so a page can
+ * render the frame statically and stream only the part that needs the request.
  */
 export function AppNav({
   accountId,
@@ -23,34 +29,69 @@ export function AppNav({
   current?: "invoices" | "market";
 }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-rule bg-sheet">
-      <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-center gap-x-7 gap-y-3 px-5 py-3">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="mark h-7 w-7 flex-none" aria-hidden="true" />
-          <span className="font-serif text-base leading-none">Ileri</span>
-        </Link>
+    <>
+      <header className="sticky top-0 z-20 border-b border-rule bg-sheet">
+        <div className="mx-auto flex w-full max-w-[1080px] items-center gap-x-7 px-5 py-3">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="mark h-7 w-7 flex-none" aria-hidden="true" />
+            <span className="font-serif text-base leading-none">Ileri</span>
+          </Link>
 
-        <nav className="flex flex-wrap gap-5 text-sm">
-          <Tab href="/app" active={current === "invoices"}>
-            Invoices
-          </Tab>
-          <Tab href="/market" active={current === "market"}>
-            Market
-          </Tab>
-        </nav>
+          <nav className="hidden gap-5 text-sm sm:flex">
+            <Tab href="/app" active={current === "invoices"}>
+              Invoices
+            </Tab>
+            <Tab href="/market" active={current === "market"}>
+              Market
+            </Tab>
+          </nav>
 
-        <span className="flex-1" />
+          <span className="flex-1" />
 
-        {accountId ? (
-          <span className="flex items-center gap-3">
-            <AccountChip accountId={accountId} />
-            <SignOutButton />
+          <div className="hidden items-center gap-3 sm:flex">
+            {accountId ? (
+              <>
+                <AccountChip accountId={accountId} />
+                <SignOutButton />
+              </>
+            ) : (
+              <span className="text-xs text-ink/60">Not connected</span>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* The phone bar. `tabbar` is what the stylesheet keys the page's bottom padding
+          off, so a page cannot forget to leave room for it. */}
+      <nav
+        className="tabbar fixed inset-x-0 bottom-0 z-20 border-t border-ink bg-sheet sm:hidden"
+        aria-label="Sections and account"
+      >
+        <div className="flex items-stretch justify-between gap-3 px-4 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+          <span className="flex items-stretch gap-1">
+            <BottomTab href="/app" active={current === "invoices"}>
+              Invoices
+            </BottomTab>
+            <BottomTab href="/market" active={current === "market"}>
+              Market
+            </BottomTab>
           </span>
-        ) : (
-          <span className="text-xs text-ink/60">Not connected</span>
-        )}
-      </div>
-    </header>
+
+          {accountId ? (
+            <span className="flex min-w-0 flex-col items-end justify-center gap-0.5">
+              {/* Account ids run long, so the chip may clip here. The sign out under it is
+                  what is being reached for and must not be pushed off the edge. */}
+              <span className="max-w-[9.5rem] overflow-hidden">
+                <AccountChip accountId={accountId} className="max-w-full" />
+              </span>
+              <SignOutButton className="min-h-0 py-0" />
+            </span>
+          ) : (
+            <span className="flex items-center text-xs text-ink/60">Not connected</span>
+          )}
+        </div>
+      </nav>
+    </>
   );
 }
 
@@ -72,6 +113,29 @@ function Tab({
           ? "border-b-2 border-stamp-red pb-0.5"
           : "border-b-2 border-transparent pb-0.5 text-ink/60 hover:text-ink"
       }
+    >
+      {children}
+    </Link>
+  );
+}
+
+/** The same tab, sized for a thumb rather than a cursor. */
+function BottomTab({
+  href,
+  active,
+  children,
+}: {
+  href: "/app" | "/market";
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={`flex min-h-11 items-center border-b-2 px-3 text-sm ${
+        active ? "border-stamp-red" : "border-transparent text-ink/60"
+      }`}
     >
       {children}
     </Link>
