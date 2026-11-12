@@ -167,6 +167,18 @@ export function getReputation(contractId: string, accountId: string) {
 }
 
 /**
+ * Money the contract holds for an account because it could not push it.
+ *
+ * A payout fails when the holder is not registered on the token contract, and rather than
+ * strand the money the contract credits it here for them to claim. Nothing in the app
+ * would otherwise mention it, so an unregistered freelancer would see a payment vanish.
+ * The dashboard asks for this on every load for exactly that reason.
+ */
+export function getClaimable(contractId: string, accountId: string, token: string) {
+  return view<string>(contractId, "get_claimable", { account_id: accountId, token });
+}
+
+/**
  * The exact message an invite key must sign.
  *
  * Always asked of the contract rather than rebuilt here. The format binds the contract

@@ -196,6 +196,20 @@ export function toRaw(value: bigint): string {
   return value.toString();
 }
 
+/**
+ * Add up a column of amounts.
+ *
+ * Here rather than inline in a page, because adding money is still doing arithmetic on
+ * money, and the whole point of this file is that nowhere else does any. A page that
+ * wrote `.reduce((a, b) => a + Number(b))` would be one rounding error away from telling
+ * somebody the wrong total.
+ */
+export function sum(values: Iterable<bigint | string>): bigint {
+  let total = 0n;
+  for (const value of values) total += toBigInt(value);
+  return total;
+}
+
 const ONES = [
   "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
   "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",

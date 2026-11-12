@@ -12,6 +12,7 @@ import {
   isSettled,
   paidPercent,
   parseAmount,
+  sum,
   toBigInt,
   toRaw,
   unpaid,
@@ -202,6 +203,31 @@ describe("the boundary with the contract", () => {
 
   it("agrees with the contract about the token's decimals", () => {
     expect(DECIMALS).toBe(6);
+  });
+
+  describe("sum", () => {
+    it("adds a column of amounts", () => {
+      expect(sum(["1000000", "2500000", "500000"])).toBe(4_000_000n);
+    });
+
+    it("is zero for nothing, not an error", () => {
+      expect(sum([])).toBe(0n);
+    });
+
+    it("takes bigint and the contract's decimal strings together", () => {
+      expect(sum([1_000_000n, "2000000"])).toBe(3_000_000n);
+    });
+
+    // The reason this exists rather than a .reduce in a page: totals past 2^53 still have
+    // to be exact, because the contract compares for equality.
+    it("stays exact past what a double holds", () => {
+      const big = 9_007_199_254_740_993n; // 2^53 + 1
+      expect(sum([big, 1n])).toBe(big + 1n);
+    });
+
+    it("refuses a value that is not an amount", () => {
+      expect(() => sum(["1000000", "oops"])).toThrow(MoneyError);
+    });
   });
 
   describe("amountInWords", () => {
