@@ -1,8 +1,10 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AcceptInvoice } from "@/components/AcceptInvoice";
 import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { publicEnv } from "@/lib/env";
+import { formatAmount } from "@/lib/money";
 import { getInvoice } from "@/lib/near";
 import { currentAccount } from "@/lib/session";
 
@@ -16,18 +18,55 @@ export const metadata = {
 /**
  * The page a client lands on from an invite link.
  *
- * Works signed out: somebody who has never used NEAR should be able to read the invoice
- * before being asked to connect anything. The invite key is handled entirely in the
- * browser, so none of it reaches this server component.
+ * The one screen in the app whose reader may never have touched crypto, and may have
+ * arrived from an email with no idea what Ileri is. So it leads with the fact they care
+ * about, which is who is asking them for how much, and says plainly that reading costs
+ * nothing and needs no wallet.
+ *
+ * Works signed out. The invite key is handled entirely in the browser, so none of it
+ * reaches this server component.
  */
 export default function InvitePage({ params }: PageProps<"/i/[id]">) {
   return (
-    <main className="mx-auto w-full max-w-[720px] px-4 py-10">
-      <h1 className="text-lg">An invoice for you</h1>
-      <Suspense fallback={<div className="mt-6 flex flex-col gap-8"><SheetSkeleton /><PanelSkeleton lines={3} label="Loading the invoice" /></div>}>
-        <Review params={params} />
-      </Suspense>
-    </main>
+    <div className="flex min-h-full flex-col">
+      <header className="border-b border-rule bg-sheet">
+        <div className="mx-auto flex w-full max-w-[760px] flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="mark h-7 w-7 flex-none" aria-hidden="true" />
+            <span className="font-serif text-base leading-none">Ileri</span>
+          </Link>
+          <span className="flex-1" />
+          <span className="flex items-center gap-2 text-xs text-ink/60">
+            <span className="h-1.5 w-1.5 flex-none rounded-full bg-stamp-green" />
+            Opened with a private link. The key stayed in your browser.
+          </span>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-[760px] flex-1 px-5 py-10">
+        <Suspense
+          fallback={
+            <div className="flex flex-col gap-8">
+              <PanelSkeleton lines={2} label="Loading the invoice" />
+              <SheetSkeleton />
+            </div>
+          }
+        >
+          <Review params={params} />
+        </Suspense>
+      </main>
+
+      <footer className="border-t border-rule">
+        <div className="mx-auto w-full max-w-[760px] px-5 py-6">
+          <p className="max-w-[68ch] text-xs leading-relaxed text-ink/60">
+            Accepting records on chain that you agreed to this invoice. Your account id,
+            the amount, the due date and the status become public. Your name, the line
+            items and any notes stay in an encrypted file that only you, the issuer and
+            whoever holds the invoice can open.
+          </p>
+        </div>
+      </footer>
+    </div>
   );
 }
 
@@ -41,10 +80,22 @@ async function Review({ params }: { params: PageProps<"/i/[id]">["params"] }) {
   if (!invoice) notFound();
 
   return (
-    <AcceptInvoice
-      invoice={invoice}
-      accountId={accountId}
-      contractId={publicEnv.contractId}
-    />
+    <>
+      <h1 className="max-w-[26ch] font-serif text-xl leading-tight text-balance">
+        {invoice.issuer} sent you an invoice for {formatAmount(invoice.amount)} USDC
+      </h1>
+      <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-ink/70">
+        Read it, then accept it or send it back. Accepting makes it binding and lets the
+        issuer sell it to a buyer, who would then be the one you pay. You need a NEAR
+        wallet to accept. You do not need one to read this, and a payment in full counts as
+        acceptance on its own.
+      </p>
+
+      <AcceptInvoice
+        invoice={invoice}
+        accountId={accountId}
+        contractId={publicEnv.contractId}
+      />
+    </>
   );
 }
