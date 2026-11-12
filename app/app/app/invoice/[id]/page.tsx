@@ -2,8 +2,9 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Amount } from "@/components/Amount";
-import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { InvoiceActions, type Roles } from "@/components/InvoiceActions";
+import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { explorerBase, publicEnv } from "@/lib/env";
 import { getInvoice } from "@/lib/near";
 import { mayReadDocument, readDocument } from "@/lib/invoice-file";
@@ -24,7 +25,7 @@ export default function InvoicePage({ params }: PageProps<"/app/invoice/[id]">) 
       <Link href="/app" className="text-xs text-ink/60 hover:text-ink">
         Back to your invoices
       </Link>
-      <Suspense fallback={<p className="mt-6 text-xs text-ink/60">Loading invoice…</p>}>
+      <Suspense fallback={<div className="mt-6 flex flex-col gap-8"><SheetSkeleton /><PanelSkeleton lines={2} label="Loading what you can do with this invoice" /></div>}>
         <Detail params={params} />
       </Suspense>
     </main>

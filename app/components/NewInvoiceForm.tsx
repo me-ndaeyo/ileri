@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Amount } from "@/components/Amount";
+import { Button } from "@/components/Button";
 import { parseAmount, MoneyError } from "@/lib/money";
 import {
   canonicalize,
@@ -281,13 +282,9 @@ export function NewInvoiceForm({
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={!canIssue}
-        className="mt-6 border border-stamp-blue bg-stamp-blue px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
-      >
-        {busy ?? "Create invoice"}
-      </button>
+      <Button type="submit" busy={busy} disabled={!canIssue} tone="primary" className="mt-6">
+        Create invoice
+      </Button>
 
       <p className="mt-3 text-xs text-ink/60">
         Creating an invoice costs a small deposit for storage, which you get back when the

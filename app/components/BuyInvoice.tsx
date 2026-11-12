@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Amount } from "@/components/Amount";
+import { Button, Pending } from "@/components/Button";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { formatAmount, toBigInt } from "@/lib/money";
 import { view, type ListingView } from "@/lib/near";
@@ -150,7 +151,7 @@ function Buy({
           it from now on goes to you, with nothing left to set up.
         </p>
         <Link
-          className="mt-3 inline-block border border-ink px-4 py-2 text-sm hover:bg-paper"
+          className="mt-3 inline-flex min-h-11 items-center border border-ink px-4 py-2 text-sm hover:bg-paper"
           href={`/app/invoice/${invoice.id}`}
         >
           Open invoice no. {invoice.id}
@@ -169,19 +170,27 @@ function Buy({
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => void buy()}
-          disabled={busy || short}
-          className="border border-ink bg-ink px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
+        <Button
+          onClick={buy}
+          busy={busy ? "Check your wallet" : null}
+          disabled={short}
+          tone="primary"
         >
           Buy for {formatAmount(asking)} USDC
-        </button>
-        {checked && balance !== null ? (
-          <span className="text-xs text-ink/60">
-            You hold <Amount value={balance} symbol="USDC" />
-          </span>
-        ) : null}
+        </Button>
+        <span className="text-xs text-ink/60">
+          {checked ? (
+            balance !== null ? (
+              <>
+                You hold <Amount value={balance} symbol="USDC" />
+              </>
+            ) : null
+          ) : (
+            <>
+              Checking what you hold <Pending className="w-16" />
+            </>
+          )}
+        </span>
       </div>
 
       {short ? (
@@ -190,8 +199,6 @@ function Buy({
           up and come back.
         </p>
       ) : null}
-
-      {busy ? <p className="mt-3 text-xs text-ink/60">Check your wallet</p> : null}
 
       {error ? (
         <p className="mt-3 border border-stamp-red/40 bg-paper p-3 text-xs text-stamp-red">

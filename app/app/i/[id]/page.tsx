@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { AcceptInvoice } from "@/components/AcceptInvoice";
+import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { publicEnv } from "@/lib/env";
 import { getInvoice } from "@/lib/near";
 import { currentAccount } from "@/lib/session";
@@ -23,7 +24,7 @@ export default function InvitePage({ params }: PageProps<"/i/[id]">) {
   return (
     <main className="mx-auto w-full max-w-[720px] px-4 py-10">
       <h1 className="text-lg">An invoice for you</h1>
-      <Suspense fallback={<p className="mt-6 text-xs text-ink/60">Loading…</p>}>
+      <Suspense fallback={<div className="mt-6 flex flex-col gap-8"><SheetSkeleton /><PanelSkeleton lines={3} label="Loading the invoice" /></div>}>
         <Review params={params} />
       </Suspense>
     </main>

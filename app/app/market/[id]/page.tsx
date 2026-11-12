@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Amount } from "@/components/Amount";
 import { BuyInvoice } from "@/components/BuyInvoice";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { explorerBase, publicEnv } from "@/lib/env";
 import { getInvoice, getListing, type ListingView } from "@/lib/near";
 import { annualisedDiscount, discountPercent } from "@/lib/money";
@@ -24,7 +25,7 @@ export default function ListingPage({ params }: PageProps<"/market/[id]">) {
       <Link href="/market" className="text-xs text-ink/60 hover:text-ink">
         Back to the market
       </Link>
-      <Suspense fallback={<p className="mt-6 text-xs text-ink/60">Loading invoice…</p>}>
+      <Suspense fallback={<div className="mt-6 flex flex-col gap-8"><SheetSkeleton /><PanelSkeleton lines={4} label="Loading the listing" /></div>}>
         <Detail params={params} />
       </Suspense>
     </main>

@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { ConnectWallet } from "@/components/ConnectWallet";
 import { Amount } from "@/components/Amount";
+import { ConnectWallet } from "@/components/ConnectWallet";
+import { LedgerSkeleton } from "@/components/Skeleton";
 import { StatusPill } from "@/components/StatusPill";
 import { publicEnv } from "@/lib/env";
 import { currentAccount } from "@/lib/session";
@@ -21,7 +22,7 @@ export default function Dashboard() {
   return (
     <main className="mx-auto w-full max-w-[720px] px-4 py-10">
       <h1 className="text-lg">Your invoices</h1>
-      <Suspense fallback={<p className="mt-8 text-xs text-ink/60">Loading…</p>}>
+      <Suspense fallback={<div className="mt-8"><LedgerSkeleton rows={3} /></div>}>
         <SignedInArea />
       </Suspense>
     </main>

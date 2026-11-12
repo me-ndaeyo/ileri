@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Amount } from "@/components/Amount";
+import { Button } from "@/components/Button";
 import { MoneyError, formatAmount, parseAmount, unpaid } from "@/lib/money";
 import { generateInviteKey, inviteLink } from "@/lib/invite";
 import { callContract } from "@/lib/wallet";
@@ -156,7 +157,7 @@ export function InvoiceActions({
 
   if (roles.isIssuer && invoice.stored_status === "Issued" && invoice.paid === "0") {
     actions.push(
-      <Button key="cancel" onClick={cancel} disabled={busy !== null} tone="danger">
+      <Button key="cancel" onClick={cancel} busy={busy} tone="danger">
         Cancel invoice
       </Button>,
     );
@@ -164,7 +165,7 @@ export function InvoiceActions({
 
   if (roles.isIssuer && invoice.stored_status === "Issued") {
     actions.push(
-      <Button key="rotate" onClick={rotateInvite} disabled={busy !== null}>
+      <Button key="rotate" onClick={rotateInvite} busy={busy}>
         Replace the invite link
       </Button>,
     );
@@ -186,7 +187,7 @@ export function InvoiceActions({
             inputMode="decimal"
           />
         </label>
-        <Button onClick={list} disabled={busy !== null}>
+        <Button onClick={list} busy={busy} tone="market">
           List for sale
         </Button>
       </div>,
@@ -195,7 +196,7 @@ export function InvoiceActions({
 
   if (roles.isHolder && invoice.listing !== null) {
     actions.push(
-      <Button key="unlist" onClick={unlist} disabled={busy !== null}>
+      <Button key="unlist" onClick={unlist} busy={busy}>
         Take it off the market
       </Button>,
     );
@@ -209,7 +210,7 @@ export function InvoiceActions({
       (invoice.stored_status !== "Paid" && roles.isIssuer));
   if (mayClose) {
     actions.push(
-      <Button key="close" onClick={close} disabled={busy !== null}>
+      <Button key="close" onClick={close} busy={busy}>
         Close and reclaim the deposit
       </Button>,
     );
@@ -229,7 +230,6 @@ export function InvoiceActions({
   return (
     <section>
       <div className="flex flex-wrap items-end gap-3">{actions}</div>
-      {busy ? <p className="mt-3 text-xs text-ink/60">{busy}</p> : null}
       {error ? (
         <p className="mt-3 border border-stamp-red/40 bg-sheet p-3 text-xs text-stamp-red">
           {error}
@@ -239,29 +239,3 @@ export function InvoiceActions({
   );
 }
 
-function Button({
-  onClick,
-  disabled,
-  tone,
-  children,
-}: {
-  onClick: () => void | Promise<void>;
-  disabled?: boolean;
-  tone?: "danger";
-  children: React.ReactNode;
-}) {
-  const style =
-    tone === "danger"
-      ? "border-stamp-red text-stamp-red hover:bg-paper"
-      : "border-rule hover:bg-paper";
-  return (
-    <button
-      type="button"
-      onClick={() => void onClick()}
-      disabled={disabled}
-      className={`border px-4 py-2 text-sm disabled:opacity-50 ${style}`}
-    >
-      {children}
-    </button>
-  );
-}

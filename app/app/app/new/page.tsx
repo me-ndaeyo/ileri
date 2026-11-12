@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { NewInvoiceForm } from "@/components/NewInvoiceForm";
+import { PanelSkeleton } from "@/components/Skeleton";
 import { publicEnv } from "@/lib/env";
 import { currentAccount } from "@/lib/session";
 
@@ -16,7 +17,7 @@ export default function NewInvoicePage() {
       <h1 className="mt-4 text-lg">Create an invoice</h1>
       {/* The form needs to know who is signed in, and that is runtime data, so it sits
           behind a boundary while the heading prerenders. */}
-      <Suspense fallback={<p className="mt-8 text-xs text-ink/60">Loading…</p>}>
+      <Suspense fallback={<div className="mt-8"><PanelSkeleton lines={5} label="Loading the invoice form" /></div>}>
         <Gate />
       </Suspense>
     </main>

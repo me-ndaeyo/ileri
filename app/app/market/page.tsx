@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Amount } from "@/components/Amount";
+import { LedgerSkeleton } from "@/components/Skeleton";
 import { StatusPill } from "@/components/StatusPill";
 import { publicEnv } from "@/lib/env";
 import { getListings, type ListingView } from "@/lib/near";
@@ -26,7 +27,7 @@ export default function MarketPage() {
         the unpaid balance, at a discount that prices the risk the client never pays.
       </p>
 
-      <Suspense fallback={<Skeleton />}>
+      <Suspense fallback={<div className="mt-8"><LedgerSkeleton rows={3} label="Loading invoices for sale" /></div>}>
         <Listings />
       </Suspense>
     </main>
@@ -115,15 +116,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Skeleton() {
-  return (
-    <div className="mt-8 border-t border-rule">
-      {[0, 1].map((i) => (
-        <div key={i} className="border-b border-rule bg-sheet px-4 py-4">
-          <div className="h-4 w-32 animate-pulse bg-rule" />
-          <div className="mt-3 h-3 w-full animate-pulse bg-rule" />
-        </div>
-      ))}
-    </div>
-  );
-}

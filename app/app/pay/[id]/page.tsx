@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { PayInvoice } from "@/components/PayInvoice";
+import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { explorerBase, publicEnv } from "@/lib/env";
 import { getInvoice } from "@/lib/near";
 import { currentAccount } from "@/lib/session";
@@ -35,7 +36,7 @@ export default function PayPage({ params }: PageProps<"/pay/[id]">) {
         </div>
       </header>
       <main className="mx-auto w-full max-w-[720px] flex-1 px-4 py-10">
-        <Suspense fallback={<p className="text-xs text-ink/60">Loading invoice…</p>}>
+        <Suspense fallback={<div className="flex flex-col gap-8"><SheetSkeleton /><PanelSkeleton lines={3} label="Loading the payment details" /></div>}>
           <Detail params={params} />
         </Suspense>
       </main>

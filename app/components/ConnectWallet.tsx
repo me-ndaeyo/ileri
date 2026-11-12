@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, signOut } from "@/lib/wallet";
+import { Button } from "@/components/Button";
 
 /**
  * Sign in and out.
@@ -36,28 +37,26 @@ export function ConnectWallet({ accountId }: { accountId: string | null }) {
       <div className="flex items-center gap-3 text-xs">
         <span className="text-ink/60">Signed in as</span>
         <span>{accountId}</span>
-        <button
-          type="button"
+        <Button
           onClick={() => run(signOut)}
-          disabled={busy || pending}
-          className="border border-rule px-2 py-1 hover:bg-paper disabled:opacity-50"
+          busy={busy || pending ? "Signing out" : null}
+          className="px-2 py-1"
         >
           Sign out
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <button
-        type="button"
+      <Button
         onClick={() => run(signIn)}
-        disabled={busy || pending}
-        className="border border-stamp-blue bg-stamp-blue px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
+        busy={busy ? "Check your wallet" : pending ? "Reading your account" : null}
+        tone="primary"
       >
-        {busy ? "Check your wallet…" : "Connect wallet"}
-      </button>
+        Connect wallet
+      </Button>
       {error ? <p className="text-xs text-stamp-red">{error}</p> : null}
     </div>
   );

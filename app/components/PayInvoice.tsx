@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Amount } from "@/components/Amount";
+import { Button, Pending } from "@/components/Button";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { Stamp } from "@/components/Stamp";
 import { MoneyError, formatAmount, isSettled, parseAmount, toBigInt, unpaid } from "@/lib/money";
@@ -190,16 +191,15 @@ function Pay({
               <Amount value={stillOwed} symbol="USDC" /> is still owed on invoice no.{" "}
               {settled.id}. Send the rest whenever you like, in one payment or several.
             </p>
-            <button
-              type="button"
+            <Button
+              className="mt-3"
               onClick={() => {
                 setSettled(null);
                 setAmount(formatAmount(stillOwed, { grouped: false }));
               }}
-              className="mt-3 border border-ink px-4 py-2 text-sm hover:bg-paper"
             >
               Pay the rest
-            </button>
+            </Button>
           </>
         )}
         <Link
@@ -240,25 +240,31 @@ function Pay({
             inputMode="decimal"
           />
         </label>
-        <button
-          type="button"
-          onClick={() => void pay()}
+        <Button
+          onClick={pay}
+          busy={busy ? "Check your wallet" : null}
           disabled={blocked}
-          className="border border-ink bg-ink px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
+          tone="primary"
         >
           Pay{asking !== null && !tooMuch && !nothing ? ` ${formatAmount(asking)} USDC` : ""}
-        </button>
+        </Button>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
         <span className="text-ink/60">
           Due <Amount value={owed} symbol="USDC" />
         </span>
-        {balance !== null ? (
-          <span className="text-ink/60">
-            You hold <Amount value={balance} symbol="USDC" />
-          </span>
-        ) : null}
+        <span className="text-ink/60">
+          {balance === null ? (
+            <>
+              Checking what you hold <Pending className="w-16" />
+            </>
+          ) : (
+            <>
+              You hold <Amount value={balance} symbol="USDC" />
+            </>
+          )}
+        </span>
         {asking !== null && asking < owed && asking > 0n ? (
           <span className="text-ink/60">
             Leaves <Amount value={owed - asking} symbol="USDC" /> owed
@@ -285,7 +291,6 @@ function Pay({
           now and the rest later, or top up.
         </Note>
       ) : null}
-      {busy ? <Note>Check your wallet</Note> : null}
       {error ? <Note tone="bad">{error}</Note> : null}
     </Panel>
   );

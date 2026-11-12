@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Amount } from "@/components/Amount";
+import { Button } from "@/components/Button";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { Stamp } from "@/components/Stamp";
 import { documentHashBase64, type InvoiceDocument } from "@/lib/invoice";
@@ -261,22 +262,21 @@ export function AcceptInvoice({
         <div className="mt-6">
           <p className="text-xs text-ink/60">Signed in as {accountId}</p>
           <div className="mt-3 flex flex-wrap gap-3">
-            <button
-              type="button"
-              disabled={phase === "working" || hashMatches === false}
-              onClick={() => void act("accept")}
-              className="border border-stamp-blue bg-stamp-blue px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
+            <Button
+              onClick={() => act("accept")}
+              busy={phase === "working" ? "Check your wallet" : null}
+              disabled={hashMatches === false}
+              tone="primary"
             >
-              {phase === "working" ? "Check your wallet…" : "Accept invoice"}
-            </button>
-            <button
-              type="button"
-              disabled={phase === "working"}
-              onClick={() => void act("reject")}
-              className="border border-stamp-red px-4 py-2 text-sm text-stamp-red hover:bg-paper disabled:opacity-50"
+              Accept invoice
+            </Button>
+            <Button
+              onClick={() => act("reject")}
+              busy={phase === "working" ? "Check your wallet" : null}
+              tone="danger"
             >
               Reject invoice
-            </button>
+            </Button>
           </div>
           <label className="mt-4 block">
             <span className="text-xs text-ink/60">
