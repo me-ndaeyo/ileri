@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Amount } from "@/components/Amount";
+import { AppNav } from "@/components/AppNav";
 import { BuyInvoice } from "@/components/BuyInvoice";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
@@ -21,15 +22,34 @@ export default function ListingPage({ params }: PageProps<"/market/[id]">) {
   // Pushing the await into the suspended child keeps the frame static and streams only
   // the part that genuinely depends on the URL.
   return (
-    <main className="mx-auto w-full max-w-[720px] px-4 py-10">
-      <Link href="/market" className="text-xs text-ink/60 hover:text-ink">
-        Back to the market
-      </Link>
-      <Suspense fallback={<div className="mt-6 flex flex-col gap-8"><SheetSkeleton /><PanelSkeleton lines={4} label="Loading the listing" /></div>}>
-        <Detail params={params} />
+    <div className="flex min-h-full flex-col">
+      <Suspense fallback={<AppNav accountId={null} current="market" />}>
+        <Nav />
       </Suspense>
-    </main>
+      <main className="mx-auto w-full max-w-[760px] flex-1 px-5 py-10">
+        <Link
+          href="/market"
+          className="text-sm text-ink/60 underline decoration-rule underline-offset-4 hover:text-ink"
+        >
+          Back to the market
+        </Link>
+        <Suspense
+          fallback={
+            <div className="mt-6 flex flex-col gap-8">
+              <SheetSkeleton />
+              <PanelSkeleton lines={4} label="Loading the listing" />
+            </div>
+          }
+        >
+          <Detail params={params} />
+        </Suspense>
+      </main>
+    </div>
   );
+}
+
+async function Nav() {
+  return <AppNav accountId={await currentAccount()} current="market" />;
 }
 
 async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] }) {

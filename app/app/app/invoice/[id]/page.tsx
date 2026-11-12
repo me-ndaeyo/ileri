@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { AppNav } from "@/components/AppNav";
 import { notFound } from "next/navigation";
 import { Amount } from "@/components/Amount";
 import { InvoiceActions, type Roles } from "@/components/InvoiceActions";
@@ -21,15 +22,34 @@ export const metadata = { title: "Invoice — Ileri" };
  */
 export default function InvoicePage({ params }: PageProps<"/app/invoice/[id]">) {
   return (
-    <main className="mx-auto w-full max-w-[720px] px-4 py-10">
-      <Link href="/app" className="text-xs text-ink/60 hover:text-ink">
-        Back to your invoices
-      </Link>
-      <Suspense fallback={<div className="mt-6 flex flex-col gap-8"><SheetSkeleton /><PanelSkeleton lines={2} label="Loading what you can do with this invoice" /></div>}>
-        <Detail params={params} />
+    <div className="flex min-h-full flex-col">
+      <Suspense fallback={<AppNav accountId={null} current="invoices" />}>
+        <Nav />
       </Suspense>
-    </main>
+      <main className="mx-auto w-full max-w-[760px] flex-1 px-5 py-10">
+        <Link
+          href="/app"
+          className="text-sm text-ink/60 underline decoration-rule underline-offset-4 hover:text-ink"
+        >
+          Back to your invoices
+        </Link>
+        <Suspense
+          fallback={
+            <div className="mt-6 flex flex-col gap-8">
+              <SheetSkeleton />
+              <PanelSkeleton lines={2} label="Loading what you can do with this invoice" />
+            </div>
+          }
+        >
+          <Detail params={params} />
+        </Suspense>
+      </main>
+    </div>
   );
+}
+
+async function Nav() {
+  return <AppNav accountId={await currentAccount()} current="invoices" />;
 }
 
 async function Detail({ params }: { params: PageProps<"/app/invoice/[id]">["params"] }) {
