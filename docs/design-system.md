@@ -128,20 +128,31 @@ the same person looks the same on every screen.
 
 ## Logo
 
-Three directions are on the canvas and **none is chosen yet**. The wordmark is Instrument
-Serif either way; what is open is the mark beside it.
+The wordmark is Instrument Serif. The mark is **C, the sealed note**: the guilloche seal
+with the note held inside it. It was chosen because the seal is the one element in this
+brand that cannot be mistaken for a generic invoicing tool, and because it earns the most on
+the token image, which is the part strangers see.
 
-- **A, the stub.** A ruled note with the security wave across it and a torn comb foot. Axis:
-  the document itself. Legible at 16px. The recommendation.
-- **B, the hand-off.** Two notes, one passing in front of the other. Axis: it changes hands,
-  which is the thing no other invoicing tool does.
-- **C, the sealed note.** The guilloche seal with the note held inside it. Axis: an
-  authenticated promise. Best at poster size, collapses to a grey ring at 16px, so it would
-  need A as a fallback mark.
+It comes with a cost that was understood when it was picked, so it is a rule rather than a
+surprise: **the guilloche fills in below about 40px.** So there are two marks, and the only
+thing that decides between them is size.
 
-Whichever is chosen: clearspace of one comb-foot height, 16px minimum for the mark alone,
-one colour only (ink on paper or paper on ink), never rotated, outlined, shadowed or set in
-another face.
+| | Mark | Used at | Files |
+| --- | --- | --- | --- |
+| Primary | C, the sealed note | 40px and up: page headers, the token image, print | `mark.svg` on sheet, `mark-paper.svg` on paper, `mark-reversed.svg` on ink |
+| Small | A, the stub | below 24px: favicon, browser tab, notification icon, avatar | to be cut when the app needs it |
+
+In page headers C runs in a **simplified cut**: the seal ring, the note, the comb foot, with
+the wave inside the note dropped. The full cut, wave included, is for 96px and above.
+
+- **B, the hand-off** (two notes, one passing in front of the other) was not chosen. It is
+  worth remembering as the one that said "it changes hands" most directly, if the mark is
+  ever revisited.
+- Clearspace: one comb-foot height on every side. Nothing crosses it, the guilloche band
+  included.
+- One colour only, ink on paper or paper on ink. Never oxblood, never two colours in the
+  mark. Colour in this brand belongs to status.
+- Never rotated, outlined, shadowed, or set in another face. The comb foot never rounds off.
 
 ## Copy
 
@@ -151,7 +162,8 @@ a 1Click status or the database. Money in flight is indigo and says so in words.
 
 ## Still open
 
-- Which logo direction ships, and then rolling it through every page header.
+- The small mark, A, has not been cut as a file yet. It is needed the moment the app gets a
+  favicon.
 - The pay page's design covers both the native 1Click route and the relayer fallback. Which
   one it ends up documenting depends on the mainnet test, which is build order step 3.
 - None of this is in `app/` yet. The canvas is the spec; the screens still carry the first
