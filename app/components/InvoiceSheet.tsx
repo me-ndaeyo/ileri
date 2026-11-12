@@ -20,12 +20,19 @@ import type { InvoiceView } from "@/lib/near";
  */
 export function InvoiceSheet({
   invoice,
+  relativeDue = true,
   children,
 }: {
   invoice: InvoiceView;
+  /**
+   * Whether to count the days to the due date. Off for the landing page, whose invoice
+   * is an illustration with no today: `daysUntil` reads the clock, and runtime data in a
+   * prerender would stop that page being static.
+   */
+  relativeDue?: boolean;
   children?: React.ReactNode;
 }) {
-  const days = daysUntil(invoice.due_date);
+  const days = relativeDue ? daysUntil(invoice.due_date) : null;
   const percent = paidPercent(invoice.amount, invoice.paid);
   // Deliberately `paid > 0`, not `percent > 0`: a real but tiny payment rounds to 0%,
   // and an empty bar would tell the issuer something false.
@@ -86,7 +93,7 @@ export function InvoiceSheet({
         </Field>
         <Field label="Due">
           <span className="tabular text-xs">{formatDate(invoice.due_date)}</span>
-          {settled ? null : (
+          {settled || days === null ? null : (
             <span className="text-xs text-ink/60">
               {days >= 0 ? ` · in ${days} days` : ` · ${Math.abs(days)} days ago`}
             </span>

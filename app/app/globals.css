@@ -113,6 +113,29 @@ body {
   background-repeat: no-repeat;
 }
 
+/* The logo mark, the sealed note. Two cuts because the note inside the seal is filled to
+   match what it sits on: `mark` for the paper ground, `mark-sheet` for a sheet. Every
+   asset path lives here rather than in a component's arbitrary value, which would be
+   resolved relative to the CSS chunk and quietly point at nothing. */
+.mark {
+  background-image: url("../public/engraving/mark-paper.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.mark-sheet {
+  background-image: url("../public/engraving/mark.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* The seal on its own, in oxblood, used to countersign a claim. */
+.seal {
+  background-image: url("../public/engraving/rosette.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
 /* Two rules with a hair between them, as on a certificate, to close a section. A single
    hairline separates rows; this ends them. */
 .double-rule {
