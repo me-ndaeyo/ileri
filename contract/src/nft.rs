@@ -240,15 +240,28 @@ impl Contract {
         self.nft.owner_by_id.get(&Self::token_id_of(id))
     }
 
-    /// Token metadata is deliberately minimal: a title and nothing else.
+    /// Token metadata is deliberately minimal: a title, and an image of the instrument.
     ///
     /// Wallets and explorers show this to anyone, so it carries no client name, no
     /// amount, no due date and no reference to the invoice file.
+    ///
+    /// `media` is a relative path, joined by the viewer with `base_uri` from
+    /// `nft_metadata`. Relative rather than absolute because the contract has no business
+    /// knowing a hostname, and because `base_uri` already exists in stored state while a
+    /// new field on the contract struct would need a migration to redeploy over.
+    ///
+    /// The convention it is built for is `{base_uri}/{media}`, which is what wallets and
+    /// marketplaces do, so `base_uri` is set WITHOUT a trailing slash and this WITHOUT a
+    /// leading one.
+    ///
+    /// The image itself is generated from the token id alone and carries the wordmark,
+    /// the serial, the contract id and the status. That keeps the privacy rule intact:
+    /// there is nothing in a serial that a reader could not already see on chain.
     fn invoice_token_metadata(id: u64) -> TokenMetadata {
         TokenMetadata {
             title: Some(format!("Invoice #{id}")),
             description: None,
-            media: None,
+            media: Some(format!("{id}/image.svg")),
             media_hash: None,
             copies: Some(1),
             issued_at: None,
