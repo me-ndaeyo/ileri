@@ -16,8 +16,16 @@
 #   scripts/seed-testnet.sh                        # as ileri-issuer.testnet
 #   ISSUER=test-issuer.testnet CLIENT=test-company.testnet scripts/seed-testnet.sh
 #
-# The issuer and client need their keys in the legacy keychain. For a wallet account:
-#   near account import-account using-web-wallet network-config testnet
+# The issuer and client need their keys in the legacy keychain, and the easiest direction
+# is usually the opposite one: `ileri-issuer.testnet` already has its key here, so import
+# THAT into your wallet and sign in as it. The seed phrase is in
+# ~/.near-credentials/testnet/ileri-issuer.testnet.json and Meteor takes a seed phrase.
+#
+# To seed a wallet account instead, export its private key from the wallet and:
+#   near account import-account using-private-key network-config testnet
+#
+# NOT `using-web-wallet`: that path is hardcoded to MyNearWallet and cannot see a Meteor
+# or HOT account, so it fails with UnknownAccessKey however correct everything else is.
 #
 # Re-running adds another five. There is no way to delete an invoice, only to close a
 # final one, so run it once and check the dashboard before running it again.
