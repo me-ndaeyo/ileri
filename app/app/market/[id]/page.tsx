@@ -2,17 +2,17 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Amount } from "@/components/Amount";
+import { BuyInvoice } from "@/components/BuyInvoice";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { explorerBase, publicEnv } from "@/lib/env";
 import { getInvoice, getListing, type ListingView } from "@/lib/near";
 import { annualisedDiscount, discountPercent } from "@/lib/money";
+import { currentAccount } from "@/lib/session";
 
 /**
- * One listing, in enough detail to decide whether to buy it.
+ * One listing, in enough detail to decide whether to buy it, and the buy itself.
  *
- * Read-only: buying needs a wallet and lands with the connect flow. Not cached, for the
- * same reason as the market index — a listing that has just been bought must not still
- * look available.
+ * Not cached: a listing that has just been bought must not still look available.
  */
 export default function ListingPage({ params }: PageProps<"/market/[id]">) {
   // `params` is deliberately not awaited here. Awaiting it at the top level is runtime
@@ -33,6 +33,9 @@ export default function ListingPage({ params }: PageProps<"/market/[id]">) {
 
 async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] }) {
   const { id } = await params;
+  // The cookie read happens here rather than in the page shell, so the frame still
+  // prerenders under Cache Components.
+  const viewer = await currentAccount();
   let listing: ListingView | null;
   try {
     listing = await getListing(publicEnv.contractId, id);
@@ -115,9 +118,11 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
         )}
       </section>
 
+      <BuyInvoice listing={listing} contractId={publicEnv.contractId} viewer={viewer} />
+
       <p className="mt-6 text-xs text-ink/60">
-        Buying needs a NEAR wallet holding USDC. Payments on this invoice go to whoever
-        holds it, so after buying, the rest is paid to you.{" "}
+        Payments on this invoice go to whoever holds it, so after buying, the rest is paid
+        to you.{" "}
         <a
           className="underline"
           href={`${explorerBase}/address/${publicEnv.contractId}`}
