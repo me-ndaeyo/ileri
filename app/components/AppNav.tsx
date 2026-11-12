@@ -58,6 +58,16 @@ export function AppNav({
               <span className="text-xs text-ink/60">Not connected</span>
             )}
           </div>
+
+          {/* On a phone, sign out is the one thing up here beside the wordmark. It is
+              rare and mildly destructive, so the far corner from the thumb is the right
+              place for it, and the account id it signs out of is in the bottom bar where
+              there is room to read it. */}
+          {accountId ? (
+            <SignOutButton className="sm:hidden" />
+          ) : (
+            <span className="text-xs text-ink/60 sm:hidden">Not connected</span>
+          )}
         </div>
       </header>
 
@@ -65,7 +75,7 @@ export function AppNav({
           off, so a page cannot forget to leave room for it. */}
       <nav
         className="tabbar fixed inset-x-0 bottom-0 z-20 border-t border-ink bg-sheet sm:hidden"
-        aria-label="Sections and account"
+        aria-label="Sections"
       >
         <div className="flex items-stretch justify-between gap-3 px-4 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
           <span className="flex items-stretch gap-1">
@@ -78,17 +88,12 @@ export function AppNav({
           </span>
 
           {accountId ? (
-            <span className="flex min-w-0 flex-col items-end justify-center gap-0.5">
-              {/* Account ids run long, so the chip may clip here. The sign out under it is
-                  what is being reached for and must not be pushed off the edge. */}
-              <span className="max-w-[9.5rem] overflow-hidden">
-                <AccountChip accountId={accountId} className="max-w-full" />
-              </span>
-              <SignOutButton className="min-h-0 py-0" />
+            /* Identity, not an action. Account ids run long, so this is allowed to clip
+               rather than squeeze the tabs. */
+            <span className="flex min-w-0 items-center">
+              <AccountChip accountId={accountId} className="max-w-[11rem]" />
             </span>
-          ) : (
-            <span className="flex items-center text-xs text-ink/60">Not connected</span>
-          )}
+          ) : null}
         </div>
       </nav>
     </>
