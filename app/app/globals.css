@@ -118,12 +118,14 @@ body {
    asset path lives here rather than in a component's arbitrary value, which would be
    resolved relative to the CSS chunk and quietly point at nothing. */
 .mark {
+  display: inline-block;
   background-image: url("../public/engraving/mark-paper.svg");
   background-size: contain;
   background-repeat: no-repeat;
 }
 
 .mark-sheet {
+  display: inline-block;
   background-image: url("../public/engraving/mark.svg");
   background-size: contain;
   background-repeat: no-repeat;
@@ -131,6 +133,7 @@ body {
 
 /* The seal on its own, in oxblood, used to countersign a claim. */
 .seal {
+  display: inline-block;
   background-image: url("../public/engraving/rosette.svg");
   background-size: contain;
   background-repeat: no-repeat;
