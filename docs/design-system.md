@@ -142,8 +142,12 @@ thing that decides between them is size.
 | Primary | C, the sealed note | 40px and up: page headers, the token image, print | `mark.svg` on sheet, `mark-paper.svg` on paper, `mark-reversed.svg` on ink |
 | Small | A, the stub | below 24px: favicon, browser tab, notification icon, avatar | to be cut when the app needs it |
 
-In page headers C runs in a **simplified cut**: the seal ring, the note, the comb foot, with
-the wave inside the note dropped. The full cut, wave included, is for 96px and above.
+The mark has four parts, and three of them are not optional: the **seal ring**, the **note**,
+**three lines of writing** on it (two full, one short), and the **comb foot**. In page headers
+C runs in a **simplified cut** where the guilloche wave inside the note is dropped, because
+below about 40px it fills in. The writing lines stay at every size down to 24px. They are
+load bearing, not decoration: without them the note is an empty box and the mark stops
+reading as a document. The full cut, wave included above the writing, is for 96px and up.
 
 - **B, the hand-off** (two notes, one passing in front of the other) was not chosen. It is
   worth remembering as the one that said "it changes hands" most directly, if the mark is
