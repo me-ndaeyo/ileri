@@ -26,7 +26,7 @@ export const metadata = {
 export default function Home() {
   return (
     <div className="flex min-h-full flex-col">
-      <header className="border-b border-rule">
+      <header className="sticky top-0 z-20 border-b border-rule bg-paper">
         <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-center gap-x-8 gap-y-4 px-5 py-4">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="mark h-8 w-8 flex-none" aria-hidden="true" />

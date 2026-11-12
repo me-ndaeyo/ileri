@@ -62,6 +62,13 @@ body {
   color: var(--ink);
 }
 
+/* The headers are sticky, so an in-page link would otherwise land its target underneath
+   one. Set on anything with an id rather than per section, because the next anchor
+   somebody adds would otherwise quietly have the same bug. */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
 /* Money lines up in columns or it is not money. Public Sans has tabular figures, so
    amounts never jitter as they change. */
 .tabular {

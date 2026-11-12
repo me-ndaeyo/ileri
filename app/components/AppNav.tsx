@@ -23,7 +23,7 @@ export function AppNav({
   current?: "invoices" | "market";
 }) {
   return (
-    <header className="border-b border-rule bg-sheet">
+    <header className="sticky top-0 z-20 border-b border-rule bg-sheet">
       <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-center gap-x-7 gap-y-3 px-5 py-3">
         <Link href="/" className="flex items-center gap-2.5">
           <span className="mark h-7 w-7 flex-none" aria-hidden="true" />
