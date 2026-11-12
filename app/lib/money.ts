@@ -195,3 +195,69 @@ export function toRaw(value: bigint): string {
   if (value < 0n) throw new MoneyError("Amount cannot be negative");
   return value.toString();
 }
+
+const ONES = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+  "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+  "eighteen", "nineteen",
+];
+const TENS = [
+  "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+];
+/** Groups of three, smallest first. Beyond this the words stop helping anybody. */
+const SCALES = ["", " thousand", " million", " billion", " trillion"];
+
+/** 0 to 999, in words. */
+function underThousand(n: number): string {
+  if (n < 20) return ONES[n];
+  if (n < 100) {
+    const unit = n % 10;
+    return unit === 0 ? TENS[Math.floor(n / 10)] : `${TENS[Math.floor(n / 10)]}-${ONES[unit]}`;
+  }
+  const rest = n % 100;
+  const hundreds = `${ONES[Math.floor(n / 100)]} hundred`;
+  return rest === 0 ? hundreds : `${hundreds} ${underThousand(rest)}`;
+}
+
+/**
+ * The amount written out, the way a cheque writes it.
+ *
+ * A bearer instrument states its value twice, in figures and in words, because words
+ * cannot be altered by adding a nought. That is the whole reason this exists, and it is
+ * why the design puts it under the amount on every sheet.
+ *
+ * `null` for anything at or above a quadrillion, rather than inventing scale names
+ * nobody uses. The caller omits the line instead of printing something wrong.
+ *
+ * The fraction is never rounded. Two decimal places get the familiar `/100`; anything
+ * finer is shown over the full six, because an invoice for 0.000001 USDC owes exactly
+ * that and the sheet must not say it owes nothing.
+ */
+export function amountInWords(raw: bigint | string): string | null {
+  const value = toBigInt(raw);
+  const whole = value / SCALE;
+  const fraction = value % SCALE;
+
+  const groups: string[] = [];
+  let left = whole;
+  let scale = 0;
+  if (left === 0n) {
+    groups.push(ONES[0]);
+  }
+  while (left > 0n) {
+    if (scale >= SCALES.length) return null;
+    const group = Number(left % 1000n);
+    if (group > 0) groups.unshift(`${underThousand(group)}${SCALES[scale]}`);
+    left /= 1000n;
+    scale += 1;
+  }
+
+  // Hundredths when the amount is a round number of them, the exact six otherwise.
+  const over100 = fraction % 10_000n === 0n;
+  const fractionText = over100
+    ? `${(fraction / 10_000n).toString().padStart(2, "0")}/100`
+    : `${fraction.toString().padStart(DECIMALS, "0")}/${SCALE.toString()}`;
+
+  const words = `${groups.join(" ")} and ${fractionText}`;
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}

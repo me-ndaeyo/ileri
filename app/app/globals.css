@@ -93,6 +93,26 @@ body {
   );
 }
 
+/* The engraving, as backgrounds rather than <img> elements, because it is decoration and
+   has no business in the accessibility tree. The band stretches to any width on purpose:
+   guilloche is a woven line, so a non-uniform stretch reads as intended rather than
+   distorted. The rosette keeps its aspect and sits behind the amount as a watermark. */
+/* The paths are relative on purpose. A root-relative `url("/engraving/…")` here is
+   silently DROPPED by Turbopack, rule and all, with no build error and no warning: the
+   band and the rosette simply never arrive. A relative path resolves as a module request
+   and is emitted as a hashed asset, which is what we want anyway. */
+.band {
+  background-image: url("../public/engraving/guilloche-band.svg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.rosette {
+  background-image: url("../public/engraving/rosette-ink.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
 /* Two rules with a hair between them, as on a certificate, to close a section. A single
    hairline separates rows; this ends them. */
 .double-rule {
