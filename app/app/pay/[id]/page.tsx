@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { PayFromAnyChain } from "@/components/PayFromAnyChain";
 import { PayInvoice } from "@/components/PayInvoice";
 import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { explorerBase, publicEnv } from "@/lib/env";
@@ -76,8 +77,11 @@ async function Detail({ params }: { params: PageProps<"/pay/[id]">["params"] }) 
 
       <PayInvoice invoice={invoice} contractId={publicEnv.contractId} viewer={viewer} />
 
-      <p className="mt-6 text-xs text-ink/60">
-        Paying from a chain other than NEAR is coming, and will arrive on this same page.{" "}
+      {/* Only offered while there is something to pay. The contract returns the full
+          amount on a settled invoice, so a deposit address for one would be a trap. */}
+      {invoice.unpaid === "0" ? null : <PayFromAnyChain invoiceId={invoice.id} />}
+
+      <p className="mt-6 text-xs text-ink/60">{" "}
         <a
           className="underline"
           href={`${explorerBase}/address/${publicEnv.contractId}`}

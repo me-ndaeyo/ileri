@@ -60,12 +60,14 @@ The honest list. Nothing below is hidden anywhere else in this README.
 **Not finished:**
 
 - **Paying from another chain is not proven.** NEAR Intents has no testnet, so it cannot be
-  exercised without mainnet funds. The quote and status plumbing is written; the delivery
-  hop is not wired, and `customRecipientMsg` is marked "HIGHLY EXPERIMENTAL" upstream, with
-  a documented warning that funds are lost if the recipient lacks `ft_on_transfer` or a
-  storage deposit. Until a mainnet check with about one dollar has run, treat the
-  cross-chain path as designed and unverified. Paying with USDC already on NEAR works today
-  and is tested.
+  exercised without mainnet funds. It is built: the token list, the quote, both delivery
+  routes behind `PAY_ROUTE`, and the selector on `/pay/[id]`, which lists the 45 routes
+  1Click actually supports. On testnet the quote route answers 409 and says why. What is
+  unverified is the delivery itself: `customRecipientMsg` is marked "HIGHLY EXPERIMENTAL"
+  upstream, with a documented warning that funds are lost if the recipient lacks
+  `ft_on_transfer` or a storage deposit. Until a mainnet check with about one dollar has
+  run, treat it as written and unverified. Paying with USDC already on NEAR works today and
+  is tested.
 - **No mainnet deployment and no hosted demo.** Everything runs locally against testnet.
 - **No demo video yet.**
 - **Token images are not live on chain.** The contract sets each token's `media` and the
