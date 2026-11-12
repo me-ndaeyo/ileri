@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Circled } from "@/components/Circled";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { InvoiceStory } from "@/components/InvoiceStory";
 import { publicEnv } from "@/lib/env";
@@ -75,7 +76,7 @@ export default function Home() {
               <div className="mt-7 flex flex-wrap items-center gap-4">
                 <Link
                   href="/app/new"
-                  className="inline-flex min-h-11 items-center border border-ink bg-ink px-6 py-3 text-base text-sheet hover:opacity-90"
+                  className="inline-flex min-h-11 items-center border border-stamp-red bg-stamp-red px-6 py-3 text-base text-sheet hover:opacity-90"
                 >
                   Issue an invoice
                 </Link>
@@ -93,7 +94,17 @@ export default function Home() {
             </div>
 
             <div className="min-w-0 flex-[1_1_22rem]">
-              <InvoiceSheet invoice={HERO} relativeDue={false} />
+              {/* The sold copy, sitting behind and slightly turned. An invoice here can
+                  change hands, and two sheets say that before a word is read. */}
+              <div className="relative">
+                <div
+                  className="absolute -bottom-4 -right-4 left-4 top-4 rotate-[1.6deg] border border-rule bg-wash"
+                  aria-hidden="true"
+                />
+                <div className="relative">
+                  <InvoiceSheet invoice={HERO} relativeDue={false} />
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -109,7 +120,9 @@ export default function Home() {
               Holds your money. The contract pays the holder in the same call that records
               the payment.
             </Fact>
-            <Fact figure="0%">Platform fee on an invoice or a sale.</Fact>
+            <Fact figure={<Circled>0%</Circled>}>
+              Platform fee on an invoice or a sale.
+            </Fact>
             <Fact figure="Off">
               Token approvals are disabled, so no third party can move your invoice.
             </Fact>
@@ -249,7 +262,13 @@ function Heading({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Fact({ figure, children }: { figure: string; children: React.ReactNode }) {
+function Fact({
+  figure,
+  children,
+}: {
+  figure: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <p className="tabular text-lg">{figure}</p>

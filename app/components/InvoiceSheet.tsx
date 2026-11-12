@@ -150,12 +150,16 @@ export function InvoiceSheet({
       </div>
 
       <div className="relative flex flex-wrap items-center justify-between gap-4 px-6 py-5">
-        <div>
-          <p className="text-xs text-ink/60">Document hash, sha256</p>
-          <p className="mt-1 font-mono text-xs text-ink/60">
-            {invoice.doc_hash.slice(0, 14)}…{invoice.doc_hash.slice(-4)}
-          </p>
-        </div>
+        {/* The useful statement is that the document matches the chain, not the digest
+            itself: a base64 hash is noise to the person reading an invoice. The digest
+            stays on the element's title for anybody who does want to check it. */}
+        <p
+          className="flex items-center gap-2 text-xs text-ink/60"
+          title={`sha256 of the invoice document: ${invoice.doc_hash}`}
+        >
+          <span className="seal h-4 w-4 flex-none" aria-hidden="true" />
+          Recorded on chain, so this cannot be altered after the fact
+        </p>
         <Stamp status={invoice.status} />
       </div>
 

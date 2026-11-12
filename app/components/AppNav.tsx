@@ -69,7 +69,7 @@ function Tab({
       aria-current={active ? "page" : undefined}
       className={
         active
-          ? "border-b-2 border-ink pb-0.5"
+          ? "border-b-2 border-stamp-red pb-0.5"
           : "border-b-2 border-transparent pb-0.5 text-ink/60 hover:text-ink"
       }
     >

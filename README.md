@@ -80,9 +80,17 @@ The honest list. Nothing below is hidden anywhere else in this README.
 
 **True and worth knowing:**
 
-- **Account ids, amounts, due dates and status are public on chain.** Anyone can read them.
-  Names, line items, notes and the reject reason live in an encrypted file offchain, and the
-  chain keeps only its sha256 so it can be proved unchanged.
+- **Account ids, amounts, due dates and status are public on chain.** Anyone can read them
+  with `get_invoice`. Names, line items, notes and the reject reason live in an encrypted
+  file offchain, and the chain keeps only its sha256 so it can be proved unchanged. The app
+  is stricter than the chain: `/app/invoice/[id]` returns the same 404 to a stranger as a
+  missing invoice would, so it will not even confirm that an invoice exists. The chain will.
+- **Token ids are sequential, which makes that public data easy to harvest.** Walking
+  `1..n` builds a map of who bills whom for how much. The data was already public, so this
+  is not a leak, but it turns "public if you know the id" into "trivially enumerable",
+  which is a meaningfully worse thing. Opaque ids would fix it and are a contract change
+  that was not worth making late in the build. Worth knowing before putting a real client
+  on this.
 - **The server sees an invoice's plaintext while it serves it.** Decryption happens server
   side after checking the reader is the issuer, the client, or the current holder. It is not
   end-to-end encrypted and does not claim to be.
