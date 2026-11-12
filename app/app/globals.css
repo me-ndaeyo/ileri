@@ -23,9 +23,56 @@
   --gold: #9c7a22; /* listed for sale. The market, and nothing else, 4.6:1 */
 }
 
-/* No dark scheme, on purpose. The whole design is a paper document, and there is no such
-   thing as a dark banknote. A second theme invented at speed would be worse than none, so
-   this ships light and says so rather than half-shipping a dark one. */
+/* Dark mode. I argued against this on the grounds that there is no such thing as a dark
+   banknote, and that was the wrong call: people read invoices at night, and a product that
+   ignores the system preference is making a point at the reader's expense.
+
+   It is not an inversion. The grounds go to a warm near-black, so it reads as the same
+   desk under a lamp rather than a different product, and the four status inks are
+   lightened until they pass against it rather than reused and left failing. The engraving
+   had to be redrawn: it is hardcoded ink, and masking it would not work, because the
+   note inside the logo's seal relies on an opaque fill that a mask would turn into a solid
+   block. So there are dark cuts of the five assets, swapped below.
+
+   Three selectors, in this order, and all three are needed:
+     - the media query, so the system preference is honoured with no stored choice
+     - :not([data-theme="light"]) on it, so an explicit choice of light wins over the system
+     - [data-theme="dark"], so an explicit choice of dark wins over a light system */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14130f;
+    --sheet: #1c1a15;
+    --wash: #262319;
+    --rule: #3b372c;
+    --ink: #f0ebdd;
+    --ink-soft: #a8a192;
+    --stamp-blue: #8ea2e0;
+    --stamp-green: #6fc79a;
+    --stamp-red: #e08a86;
+    --gold: #d4ac57;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #14130f;
+  --sheet: #1c1a15;
+  --wash: #262319;
+  --rule: #3b372c;
+  --ink: #f0ebdd;
+  --ink-soft: #a8a192;
+  --stamp-blue: #8ea2e0;
+  --stamp-green: #6fc79a;
+  --stamp-red: #e08a86;
+  --gold: #d4ac57;
+}
+
+/* Tell the browser, so form controls, scrollbars and the caret follow. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
 
 @theme inline {
   --color-paper: var(--paper);
@@ -144,6 +191,42 @@ body {
   background-image: url("../public/engraving/rosette.svg");
   background-size: contain;
   background-repeat: no-repeat;
+}
+
+/* The dark cuts of the engraving. Same three selectors as the tokens above, for the same
+   three reasons. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .band {
+    background-image: url("../public/engraving/guilloche-band-dark.svg");
+  }
+  :root:not([data-theme="light"]) .rosette {
+    background-image: url("../public/engraving/rosette-ink-dark.svg");
+  }
+  :root:not([data-theme="light"]) .seal {
+    background-image: url("../public/engraving/rosette-dark.svg");
+  }
+  :root:not([data-theme="light"]) .mark {
+    background-image: url("../public/engraving/mark-paper-dark.svg");
+  }
+  :root:not([data-theme="light"]) .mark-sheet {
+    background-image: url("../public/engraving/mark-dark.svg");
+  }
+}
+
+:root[data-theme="dark"] .band {
+  background-image: url("../public/engraving/guilloche-band-dark.svg");
+}
+:root[data-theme="dark"] .rosette {
+  background-image: url("../public/engraving/rosette-ink-dark.svg");
+}
+:root[data-theme="dark"] .seal {
+  background-image: url("../public/engraving/rosette-dark.svg");
+}
+:root[data-theme="dark"] .mark {
+  background-image: url("../public/engraving/mark-paper-dark.svg");
+}
+:root[data-theme="dark"] .mark-sheet {
+  background-image: url("../public/engraving/mark-dark.svg");
 }
 
 /* Two rules with a hair between them, as on a certificate, to close a section. A single

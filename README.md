@@ -103,7 +103,6 @@ The honest list. Nothing below is hidden anywhere else in this README.
   loss. There is no insurance and a purchase cannot be undone. The market says so on every
   listing rather than in the small print.
 - **No platform fee**, on an invoice or a sale.
-- **Light theme only.** The design is a paper document and there is no dark banknote.
 
 ## Tests
 

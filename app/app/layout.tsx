@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Instrument_Serif, Public_Sans } from "next/font/google";
+import { THEME_SCRIPT } from "@/components/ThemeToggle";
 import "./globals.css";
 
 /* Three faces, each with a job. Public Sans runs the app: it reads like a plain official
@@ -42,6 +43,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           and a leaked Referer header would be the one way that escapes the browser. */}
       <head>
         <meta name="referrer" content="no-referrer" />
+        {/* Applies a stored theme before the first paint. Anything that runs after
+            hydration gives a flash of the wrong one, which is worse than no toggle. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="font-sans min-h-full flex flex-col text-sm">{children}</body>
     </html>

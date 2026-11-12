@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AccountChip } from "@/components/AccountChip";
 import { SignOutButton } from "@/components/SignOutButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /**
  * The chrome every signed-in screen shares.
@@ -49,6 +50,7 @@ export function AppNav({
           <span className="flex-1" />
 
           <div className="hidden items-center gap-3 sm:flex">
+            <ThemeToggle />
             {accountId ? (
               <>
                 <AccountChip accountId={accountId} />
@@ -63,11 +65,14 @@ export function AppNav({
               rare and mildly destructive, so the far corner from the thumb is the right
               place for it, and the account id it signs out of is in the bottom bar where
               there is room to read it. */}
-          {accountId ? (
-            <SignOutButton className="sm:hidden" />
-          ) : (
-            <span className="text-xs text-ink/60 sm:hidden">Not connected</span>
-          )}
+          <span className="flex items-center gap-2 sm:hidden">
+            <ThemeToggle />
+            {accountId ? (
+              <SignOutButton />
+            ) : (
+              <span className="text-xs text-ink/60">Not connected</span>
+            )}
+          </span>
         </div>
       </header>
 

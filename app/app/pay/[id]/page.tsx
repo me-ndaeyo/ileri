@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { PayFromAnyChain } from "@/components/PayFromAnyChain";
 import { PayInvoice } from "@/components/PayInvoice";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { explorerBase, publicEnv } from "@/lib/env";
 import { getInvoice } from "@/lib/near";
@@ -31,6 +32,7 @@ export default function PayPage({ params }: PageProps<"/pay/[id]">) {
             Ileri
           </Link>
           <span className="flex-1" />
+          <ThemeToggle />
           <span className="text-xs text-ink/60">
             No account needed. You pay from your own wallet.
           </span>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Circled } from "@/components/Circled";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { InvoiceStory } from "@/components/InvoiceStory";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { publicEnv } from "@/lib/env";
 import { HERO } from "@/lib/sample-invoice";
 
@@ -44,6 +45,7 @@ export default function Home() {
             </a>
           </nav>
           <span className="flex-1" />
+          <ThemeToggle />
           <Link
             href="/app"
             className="min-h-11 border border-ink px-4 py-2 text-sm hover:bg-sheet"

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AcceptInvoice } from "@/components/AcceptInvoice";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { publicEnv } from "@/lib/env";
 import { formatAmount } from "@/lib/money";
@@ -36,6 +37,7 @@ export default function InvitePage({ params }: PageProps<"/i/[id]">) {
             <span className="font-serif text-base leading-none">Ileri</span>
           </Link>
           <span className="flex-1" />
+          <ThemeToggle />
           <span className="flex items-center gap-2 text-xs text-ink/60">
             <span className="h-1.5 w-1.5 flex-none rounded-full bg-stamp-green" />
             Opened with a private link. The key stayed in your browser.
