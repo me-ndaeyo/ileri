@@ -102,14 +102,24 @@ export default function Home() {
 
             <div className="min-w-0 flex-[1_1_22rem]">
               {/* The sold copy, sitting behind and slightly turned. An invoice here can
-                  change hands, and two sheets say that before a word is read. */}
-              <div className="relative">
-                <div
-                  className="absolute -bottom-4 -right-4 left-4 top-4 rotate-[1.6deg] border border-rule bg-wash"
-                  aria-hidden="true"
-                />
+                  change hands, and two sheets say that before a word is read.
+
+                  The padding on the outer box is what reserves room for it. The back sheet
+                  hangs 1rem past the front one and its rotation throws the corners about
+                  7px further, and absolute offsets resolve against the padding box, so
+                  padding on the positioned element itself would not have helped: it needs
+                  a separate outer box that is simply wider. Without this the page scrolled
+                  sideways on a phone, and this was the only negative inset on it not
+                  already inside an overflow clip. */}
+              <div className="pr-6 pb-6">
                 <div className="relative">
-                  <InvoiceSheet invoice={HERO} relativeDue={false} />
+                  <div
+                    className="absolute -bottom-4 -right-4 left-4 top-4 rotate-[1.6deg] border border-rule bg-wash"
+                    aria-hidden="true"
+                  />
+                  <div className="relative">
+                    <InvoiceSheet invoice={HERO} relativeDue={false} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -316,7 +326,9 @@ function BottomLink({
 function Heading({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-5">
-      <h2 className="font-serif text-xl leading-tight whitespace-nowrap">{children}</h2>
+      {/* Allowed to wrap on a phone. Nothing overflows at today's headings, but a
+          nowrap heading next to a flex-1 rule is one long title away from doing so. */}
+      <h2 className="font-serif text-xl leading-tight sm:whitespace-nowrap">{children}</h2>
       <span className="h-px flex-1 bg-rule" />
     </div>
   );
