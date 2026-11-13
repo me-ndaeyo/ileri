@@ -29,7 +29,7 @@ export default function ListingPage({ params }: PageProps<"/market/[id]">) {
       <main className="mx-auto w-full max-w-[760px] flex-1 px-5 py-10">
         <Link
           href="/market"
-          className="text-sm text-ink/60 underline decoration-rule underline-offset-4 hover:text-ink"
+          className="text-sm text-ink-soft underline decoration-rule underline-offset-4 hover:text-ink"
         >
           Back to the market
         </Link>
@@ -62,7 +62,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
     listing = await getListing(publicEnv.contractId, id);
   } catch (error) {
     return (
-      <p className="mt-6 border border-stamp-red/40 bg-sheet p-4 text-xs text-stamp-red">
+      <p className="mt-6 border border-stamp-red bg-sheet p-4 text-xs text-stamp-red">
         Could not reach the contract. {error instanceof Error ? error.message : String(error)}
       </p>
     );
@@ -77,7 +77,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
     if (!invoice) notFound();
     return (
       <div className="mt-6">
-        <p className="border border-rule bg-sheet p-4 text-xs text-ink/60">
+        <p className="border border-rule bg-sheet p-4 text-xs text-ink-soft">
           Invoice {id} is not for sale. Its holder has not listed it, or it has already
           been bought or paid.
         </p>
@@ -107,15 +107,15 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
           </Line>
           <Line label="Your margin">
             <Amount value={listing.discount} symbol="USDC" />
-            <span className="text-ink/60"> · {percent.toFixed(1)}%</span>
+            <span className="text-ink-soft"> · {percent.toFixed(1)}%</span>
           </Line>
           <Line label="As a yearly rate">
             {annual === null ? (
-              <span className="text-ink/60">Past due, so no annual rate</span>
+              <span className="text-ink-soft">Past due, so no annual rate</span>
             ) : (
               <>
                 {annual.toFixed(0)}% a year
-                <span className="text-ink/60"> over {days_to_due} days</span>
+                <span className="text-ink-soft"> over {days_to_due} days</span>
               </>
             )}
           </Line>
@@ -132,7 +132,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
             <Line label="Invoices rejected">{client_reputation.rejected_as_client}</Line>
           </dl>
         ) : (
-          <p className="px-5 py-4 text-xs text-ink/60">
+          <p className="px-5 py-4 text-xs text-ink-soft">
             No record. This invoice was never accepted by a signed-in client, so there is
             no payment history to judge it by.
           </p>
@@ -141,7 +141,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
 
       <BuyInvoice listing={listing} contractId={publicEnv.contractId} viewer={viewer} />
 
-      <p className="mt-6 text-xs text-ink/60">
+      <p className="mt-6 text-xs text-ink-soft">
         Payments on this invoice go to whoever holds it, so after buying, the rest is paid
         to you.{" "}
         <a
@@ -161,7 +161,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
 function Line({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-rule px-5 py-2.5 last:border-0">
-      <dt className="text-xs text-ink/60">{label}</dt>
+      <dt className="text-xs text-ink-soft">{label}</dt>
       <dd className="text-sm">{children}</dd>
     </div>
   );

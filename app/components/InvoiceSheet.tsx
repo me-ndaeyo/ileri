@@ -47,7 +47,7 @@ export function InvoiceSheet({
   const sold = invoice.holder !== null && invoice.holder !== invoice.issuer;
 
   return (
-    <article className="relative overflow-hidden border border-rule bg-sheet">
+    <article className="instrument relative overflow-hidden border border-rule bg-sheet">
       <div className="band h-6 w-full" aria-hidden="true" />
       <div
         className="rosette pointer-events-none absolute -right-8 top-24 h-52 w-52 opacity-40"
@@ -58,24 +58,24 @@ export function InvoiceSheet({
       <div className="relative flex flex-wrap items-start justify-between gap-4 px-6 pt-6">
         <div>
           <p className="font-serif text-lg leading-none">Ileri</p>
-          <p className="mt-1 text-xs text-ink/60">Promise to pay the bearer</p>
+          <p className="mt-1 text-xs text-ink-soft">Promise to pay the bearer</p>
         </div>
         <div className="text-right">
           <p className="serial text-xs">No. {invoice.id.padStart(10, "0")}</p>
-          <p className="mt-1 font-mono text-xs text-ink/60">{publicEnv.contractId}</p>
+          <p className="mt-1 font-mono text-xs text-ink-soft">{publicEnv.contractId}</p>
         </div>
       </div>
 
       {/* The figure, then the figure in words */}
       <div className="relative px-6 pt-6">
-        <p className="text-xs text-ink/60">Amount due</p>
+        <p className="text-xs text-ink-soft">Amount due</p>
         <p className="mt-1 flex flex-wrap items-baseline gap-2">
           <span className="tabular font-serif text-2xl leading-none">
             {formatAmount(invoice.amount)}
           </span>
-          <span className="font-mono text-xs text-ink/60">USDC</span>
+          <span className="font-mono text-xs text-ink-soft">USDC</span>
         </p>
-        {words ? <p className="mt-1.5 text-xs text-ink/60">{words}</p> : null}
+        {words ? <p className="mt-1.5 text-xs text-ink-soft">{words}</p> : null}
       </div>
 
       {/* The parties and the date */}
@@ -88,13 +88,13 @@ export function InvoiceSheet({
             <span className="font-mono text-xs">{invoice.client}</span>
           ) : (
             // No client until somebody accepts, and that absence is worth stating.
-            <span className="text-xs text-ink/60">Not yet accepted</span>
+            <span className="text-xs text-ink-soft">Not yet accepted</span>
           )}
         </Field>
         <Field label="Due">
           <span className="tabular text-xs">{formatDate(invoice.due_date)}</span>
           {settled || days === null ? null : (
-            <span className="text-xs text-ink/60">
+            <span className="text-xs text-ink-soft">
               {days >= 0 ? ` · in ${days} days` : ` · ${Math.abs(days)} days ago`}
             </span>
           )}
@@ -113,10 +113,10 @@ export function InvoiceSheet({
           {invoice.holder ? (
             <span className="font-mono text-xs">
               {invoice.holder}
-              {sold ? <span className="text-ink/60"> · bought it</span> : null}
+              {sold ? <span className="text-ink-soft"> · bought it</span> : null}
             </span>
           ) : (
-            <span className="text-xs text-ink/60">Closed</span>
+            <span className="text-xs text-ink-soft">Closed</span>
           )}
         </Row>
       </dl>
@@ -139,7 +139,7 @@ export function InvoiceSheet({
               style={{ width: `${Math.max(percent, 1)}%` }}
             />
           </div>
-          <p className="mt-1.5 text-xs text-ink/60">
+          <p className="mt-1.5 text-xs text-ink-soft">
             {percent >= 100 ? "Paid in full" : `${percent.toFixed(1)}% paid`}
           </p>
         </div>
@@ -154,7 +154,7 @@ export function InvoiceSheet({
             itself: a base64 hash is noise to the person reading an invoice. The digest
             stays on the element's title for anybody who does want to check it. */}
         <p
-          className="flex items-center gap-2 text-xs text-ink/60"
+          className="flex items-center gap-2 text-xs text-ink-soft"
           title={`sha256 of the invoice document: ${invoice.doc_hash}`}
         >
           <span className="seal h-4 w-4 flex-none" aria-hidden="true" />
@@ -176,7 +176,7 @@ export function InvoiceSheet({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs text-ink/60">{label}</p>
+      <p className="text-xs text-ink-soft">{label}</p>
       <p className="mt-1">{children}</p>
     </div>
   );
@@ -185,7 +185,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="relative flex items-baseline justify-between gap-4 border-b border-rule px-6 py-2.5 last:border-0">
-      <dt className="text-xs text-ink/60">{label}</dt>
+      <dt className="text-xs text-ink-soft">{label}</dt>
       <dd className="text-sm">{children}</dd>
     </div>
   );

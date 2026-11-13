@@ -66,6 +66,67 @@ function write(next: Choice): void {
   for (const listener of listeners) listener();
 }
 
+
+/* Inline stroke SVGs rather than an icon font or emoji: they take the current text
+   colour, so they invert with the selected state for free, and they add no request.
+   Drawn on a 24 grid at 1.6 stroke to sit with the hairlines everywhere else. */
+const OPTIONS = [
+  {
+    value: "light" as const,
+    label: "Light",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="4.2" />
+        <path d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6" />
+      </svg>
+    ),
+  },
+  {
+    value: "system" as const,
+    label: "Follow my system",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <rect x="2.8" y="4.2" width="18.4" height="12.4" rx="1.4" />
+        <path d="M8.6 20.4h6.8M12 16.6v3.8" />
+      </svg>
+    ),
+  },
+  {
+    value: "dark" as const,
+    label: "Dark",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M20.4 14.6A8.6 8.6 0 1 1 9.4 3.6a6.9 6.9 0 0 0 11 11Z" />
+      </svg>
+    ),
+  },
+];
+
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const choice = useSyncExternalStore(subscribe, read, readOnServer);
 
@@ -74,13 +135,14 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       className={`inline-flex items-center border border-rule ${className}`}
       aria-label="Theme"
     >
-      {(["light", "system", "dark"] as const).map((option) => {
-        const active = choice === option;
+      {OPTIONS.map(({ value, label, icon }) => {
+        const active = choice === value;
         return (
           <label
-            key={option}
-            className={`cursor-pointer px-2 py-1 text-xs capitalize ${
-              active ? "bg-ink text-sheet" : "text-ink/60 hover:text-ink"
+            key={value}
+            title={label}
+            className={`flex h-7 w-7 cursor-pointer items-center justify-center ${
+              active ? "bg-ink text-sheet" : "text-ink-soft hover:text-ink"
             }`}
           >
             {/* A real radio group, so it is one tab stop and the arrow keys move between
@@ -90,9 +152,12 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
               name="theme"
               className="sr-only"
               checked={active}
-              onChange={() => write(option)}
+              onChange={() => write(value)}
             />
-            {option}
+            {icon}
+            {/* The icons carry no text, so the name has to reach a screen reader some
+                other way. `title` alone would not: it is a tooltip, not a label. */}
+            <span className="sr-only">{label}</span>
           </label>
         );
       })}

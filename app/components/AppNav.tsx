@@ -57,7 +57,7 @@ export function AppNav({
                 <SignOutButton />
               </>
             ) : (
-              <span className="text-xs text-ink/60">Not connected</span>
+              <span className="text-xs text-ink-soft">Not connected</span>
             )}
           </div>
 
@@ -70,7 +70,7 @@ export function AppNav({
             {accountId ? (
               <SignOutButton />
             ) : (
-              <span className="text-xs text-ink/60">Not connected</span>
+              <span className="text-xs text-ink-soft">Not connected</span>
             )}
           </span>
         </div>
@@ -121,7 +121,7 @@ function Tab({
       className={
         active
           ? "border-b-2 border-stamp-red pb-0.5"
-          : "border-b-2 border-transparent pb-0.5 text-ink/60 hover:text-ink"
+          : "border-b-2 border-transparent pb-0.5 text-ink-soft hover:text-ink"
       }
     >
       {children}
@@ -144,7 +144,7 @@ function BottomTab({
       href={href}
       aria-current={active ? "page" : undefined}
       className={`flex min-h-11 items-center border-b-2 px-3 text-sm ${
-        active ? "border-stamp-red" : "border-transparent text-ink/60"
+        active ? "border-stamp-red" : "border-transparent text-ink-soft"
       }`}
     >
       {children}

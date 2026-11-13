@@ -91,16 +91,16 @@ export function PayFromAnyChain({ invoiceId }: { invoiceId: string }) {
   return (
     <section className="mt-8 border border-rule bg-sheet p-5">
       <h2 className="text-base">Pay from another chain</h2>
-      <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-ink/70">
+      <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-ink-soft">
         Send what you already hold and NEAR Intents converts it, delivering USDC to the
         invoice. You get a deposit address on your own chain, so you need no NEAR wallet
         and no account here.
       </p>
 
       <div className="mt-5">
-        <p className="text-xs text-ink/60">What are you paying with?</p>
+        <p className="text-xs text-ink-soft">What are you paying with?</p>
         {options === null ? (
-          <p className="mt-2 text-xs text-ink/60">
+          <p className="mt-2 text-xs text-ink-soft">
             Loading the routes 1Click supports <Pending className="w-20" />
           </p>
         ) : (
@@ -130,7 +130,7 @@ export function PayFromAnyChain({ invoiceId }: { invoiceId: string }) {
       {picked ? (
         <div className="mt-5">
           <label className="block">
-            <span className="text-xs text-ink/60">
+            <span className="text-xs text-ink-soft">
               Your address on {picked.chain}, for any refund
             </span>
             <input
@@ -140,7 +140,7 @@ export function PayFromAnyChain({ invoiceId }: { invoiceId: string }) {
               placeholder={`where a refund should go on ${picked.chain}`}
             />
           </label>
-          <p className="mt-2 max-w-[62ch] text-xs leading-relaxed text-ink/60">
+          <p className="mt-2 max-w-[62ch] text-xs leading-relaxed text-ink-soft">
             Send from a wallet you control rather than an exchange. A refund goes back to
             the address the money came from, and an exchange withdrawal arrives from one
             you cannot receive at.
@@ -159,7 +159,7 @@ export function PayFromAnyChain({ invoiceId }: { invoiceId: string }) {
 
       {quote?.depositAddress ? (
         <div className="mt-5 border border-ink bg-paper p-4">
-          <p className="text-xs text-ink/60">
+          <p className="text-xs text-ink-soft">
             Send exactly {quote.amountIn ?? "the quoted amount"} {quote.originSymbol} on{" "}
             {quote.originChain} to
           </p>
@@ -170,7 +170,7 @@ export function PayFromAnyChain({ invoiceId }: { invoiceId: string }) {
               After that, ask for a new one rather than sending late.
             </p>
           ) : null}
-          <p className="mt-3 max-w-[62ch] text-xs leading-relaxed text-ink/60">
+          <p className="mt-3 max-w-[62ch] text-xs leading-relaxed text-ink-soft">
             The invoice reads as paid only once the contract has the money, not when the
             deposit clears. This page will not say otherwise.
             {quote.route === "relay"
@@ -181,7 +181,7 @@ export function PayFromAnyChain({ invoiceId }: { invoiceId: string }) {
       ) : null}
 
       {error ? (
-        <p className="mt-4 border border-stamp-red/40 bg-paper p-3 text-xs leading-relaxed text-stamp-red">
+        <p className="mt-4 border border-stamp-red bg-paper p-3 text-xs leading-relaxed text-stamp-red">
           {error}
         </p>
       ) : null}

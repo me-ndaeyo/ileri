@@ -62,7 +62,7 @@ export function ClaimPayout({
           <h2 className="text-base">
             <Amount value={amount} symbol="USDC" /> could not be delivered to you
           </h2>
-          <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-ink/70">
+          <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-ink-soft">
             Your account was not registered on {token} when a payment landed, so the
             contract is holding the money for you rather than losing it. Claiming registers
             you and sends it on.
@@ -78,7 +78,7 @@ export function ClaimPayout({
         </Button>
       </div>
       {error ? (
-        <p className="mt-4 border border-stamp-red/40 bg-paper p-3 text-xs text-stamp-red">
+        <p className="mt-4 border border-stamp-red bg-paper p-3 text-xs text-stamp-red">
           {error}
         </p>
       ) : null}

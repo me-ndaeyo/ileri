@@ -45,15 +45,36 @@ export function SignOutButton({ className = "" }: { className?: string }) {
         onClick={() => void run()}
         disabled={waiting}
         aria-busy={waiting || undefined}
-        className={`min-h-11 px-1 text-xs text-ink/60 underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-50 ${className}`}
+        className={`min-h-11 px-1 text-xs text-ink-soft hover:text-ink disabled:opacity-50 sm:underline sm:decoration-rule sm:underline-offset-4 ${className}`}
       >
         {waiting ? (
           <span className="inline-flex items-center gap-2">
             <span className="spinner" aria-hidden="true" />
-            Signing out
+            <span className="hidden sm:inline">Signing out</span>
           </span>
         ) : (
-          "Sign out"
+          <span className="inline-flex items-center gap-2">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {/* A door with an arrow leaving it. Reads as leaving rather than as a
+                  power switch, which is what a circle-and-bar would say. */}
+              <path d="M14.4 20.4H5.6a1.2 1.2 0 0 1-1.2-1.2V4.8a1.2 1.2 0 0 1 1.2-1.2h8.8" />
+              <path d="M16.4 8.4 20 12l-3.6 3.6M9.6 12H20" />
+            </svg>
+            {/* The word stays on a wide screen, where there is room for it and it is
+                less ambiguous. On a phone the icon carries it, with the name still
+                reaching a screen reader. */}
+            <span className="hidden sm:inline">Sign out</span>
+            <span className="sr-only sm:hidden">Sign out</span>
+          </span>
         )}
       </button>
       {error ? <span className="text-xs text-stamp-red">{error}</span> : null}

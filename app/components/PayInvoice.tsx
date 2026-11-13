@@ -43,7 +43,7 @@ export function PayInvoice({
       <Panel tone="good">
         <div className="flex flex-wrap items-center gap-4">
           <Stamp status="Paid" />
-          <p className="text-sm text-ink/70">
+          <p className="text-sm text-ink-soft">
             This invoice is settled in full. Nothing further is owed on it.
           </p>
         </div>
@@ -54,7 +54,7 @@ export function PayInvoice({
   if (invoice.stored_status === "Rejected" || invoice.stored_status === "Cancelled") {
     return (
       <Panel>
-        <p className="text-sm text-ink/70">
+        <p className="text-sm text-ink-soft">
           This invoice was {invoice.stored_status.toLowerCase()}, so it cannot take a
           payment. Any amount sent to it would be returned. If that is wrong, ask the
           issuer for a new invoice.
@@ -67,7 +67,7 @@ export function PayInvoice({
     return (
       <Panel>
         <h2 className="text-base">Pay with USDC on NEAR</h2>
-        <p className="mt-2 max-w-[56ch] text-sm text-ink/70">
+        <p className="mt-2 max-w-[56ch] text-sm text-ink-soft">
           Connect a wallet holding USDC and this settles in one transfer. The amount due
           is <Amount value={owed} symbol="USDC" />.
         </p>
@@ -81,7 +81,7 @@ export function PayInvoice({
   return (
     <>
       <Pay invoice={invoice} owed={owed} contractId={contractId} viewer={viewer} />
-      <p className="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink/60">
+      <p className="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink-soft">
         <span>Paying as {viewer}</span>
         <SignOutButton />
       </p>
@@ -182,7 +182,7 @@ function Pay({
               <Stamp status="Paid" />
               <h2 className="text-base">Invoice no. {settled.id} is paid</h2>
             </div>
-            <p className="mt-3 max-w-[56ch] text-sm text-ink/70">
+            <p className="mt-3 max-w-[56ch] text-sm text-ink-soft">
               The contract has it at <Amount value={settled.paid} symbol="USDC" /> of{" "}
               <Amount value={settled.amount} symbol="USDC" />, and the money has gone to{" "}
               {settled.holder ?? "its holder"}. This says paid because the contract says
@@ -194,7 +194,7 @@ function Pay({
             <h2 className="text-base">
               <Amount value={settled.paid} symbol="USDC" /> received
             </h2>
-            <p className="mt-2 max-w-[56ch] text-sm text-ink/70">
+            <p className="mt-2 max-w-[56ch] text-sm text-ink-soft">
               <Amount value={stillOwed} symbol="USDC" /> is still owed on invoice no.{" "}
               {settled.id}. Send the rest whenever you like, in one payment or several.
             </p>
@@ -210,7 +210,7 @@ function Pay({
           </>
         )}
         <Link
-          className="mt-3 block text-xs text-ink/60 underline"
+          className="mt-3 block text-xs text-ink-soft underline"
           href={`/market/${settled.id}`}
         >
           See this invoice on the market
@@ -222,7 +222,7 @@ function Pay({
   return (
     <Panel>
       <h2 className="text-base">Pay with USDC on NEAR</h2>
-      <p className="mt-2 max-w-[60ch] text-sm text-ink/70">
+      <p className="mt-2 max-w-[60ch] text-sm text-ink-soft">
         One transfer from your wallet. The contract records it and sends it on to{" "}
         <strong className="font-medium">{invoice.holder ?? "the holder"}</strong>, who
         holds this invoice right now.
@@ -232,14 +232,14 @@ function Pay({
       </p>
 
       {invoice.stored_status === "Issued" && asking !== null && asking >= owed ? (
-        <p className="mt-3 max-w-[60ch] text-xs text-ink/60">
+        <p className="mt-3 max-w-[60ch] text-xs text-ink-soft">
           Paying this in full accepts it at the same time, so there is no separate step.
         </p>
       ) : null}
 
       <div className="mt-4 flex flex-wrap items-end gap-3">
         <label className="min-w-[12rem] flex-1">
-          <span className="text-xs text-ink/60">Amount to send, in USDC</span>
+          <span className="text-xs text-ink-soft">Amount to send, in USDC</span>
           <input
             className="mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm tabular outline-none focus:border-stamp-blue"
             value={amount}
@@ -258,10 +258,10 @@ function Pay({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-        <span className="text-ink/60">
+        <span className="text-ink-soft">
           Due <Amount value={owed} symbol="USDC" />
         </span>
-        <span className="text-ink/60">
+        <span className="text-ink-soft">
           {balance === null ? (
             <>
               Checking what you hold <Pending className="w-16" />
@@ -273,7 +273,7 @@ function Pay({
           )}
         </span>
         {asking !== null && asking < owed && asking > 0n ? (
-          <span className="text-ink/60">
+          <span className="text-ink-soft">
             Leaves <Amount value={owed - asking} symbol="USDC" /> owed
           </span>
         ) : null}
@@ -306,12 +306,12 @@ function Pay({
 function Note({ tone, children }: { tone?: "bad"; children: React.ReactNode }) {
   if (tone === "bad") {
     return (
-      <p className="mt-3 border border-stamp-red/40 bg-paper p-3 text-xs text-stamp-red">
+      <p className="mt-3 border border-stamp-red bg-paper p-3 text-xs text-stamp-red">
         {children}
       </p>
     );
   }
-  return <p className="mt-3 text-xs text-ink/60">{children}</p>;
+  return <p className="mt-3 text-xs text-ink-soft">{children}</p>;
 }
 
 function Panel({ tone, children }: { tone?: "good"; children: React.ReactNode }) {

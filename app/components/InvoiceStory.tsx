@@ -88,7 +88,7 @@ export function InvoiceStory() {
                   <span className="flex items-baseline gap-3">
                     <span
                       className={`font-mono text-xs tracking-widest ${
-                        active ? "text-stamp-red" : "text-ink/60"
+                        active ? "text-stamp-red" : "text-ink-soft"
                       }`}
                     >
                       {String(i + 1).padStart(2, "0")}
@@ -96,7 +96,7 @@ export function InvoiceStory() {
                     <span className="text-base font-medium">{item.title}</span>
                   </span>
                   {active ? (
-                    <span className="mt-2 block max-w-[46ch] text-sm leading-relaxed text-ink/70">
+                    <span className="mt-2 block max-w-[46ch] text-sm leading-relaxed text-ink-soft">
                       {item.body}
                     </span>
                   ) : null}
@@ -117,7 +117,7 @@ export function InvoiceStory() {
             <button
               type="button"
               onClick={() => setBeat(0)}
-              className="min-h-11 px-1 text-sm text-ink/60 underline decoration-rule underline-offset-4"
+              className="min-h-11 px-1 text-sm text-ink-soft underline decoration-rule underline-offset-4"
             >
               Start again
             </button>
@@ -128,8 +128,8 @@ export function InvoiceStory() {
       {/* The sheet as it stands at this beat */}
       <div className="min-w-0 flex-[1_1_22rem]">
         <InvoiceSheet invoice={current.invoice} relativeDue={false} />
-        <p className="mt-3 text-sm text-ink/70">{current.note}</p>
-        <p className="mt-3 text-xs text-ink/60">
+        <p className="mt-3 text-sm text-ink-soft">{current.note}</p>
+        <p className="mt-3 text-xs text-ink-soft">
           This is the token image too, drawn from the serial alone. It carries no names and
           no amounts, so it can sit in a public wallet without giving anything away.
         </p>

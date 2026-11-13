@@ -52,7 +52,7 @@ export function AccountChip({
         aria-hidden="true"
       />
       <span className="truncate font-mono text-xs">{accountId}</span>
-      {note ? <span className="text-xs text-ink/60">{note}</span> : null}
+      {note ? <span className="text-xs text-ink-soft">{note}</span> : null}
     </span>
   );
 }

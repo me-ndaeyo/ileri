@@ -62,14 +62,14 @@ export default function Home() {
             <div className="min-w-0 flex-[999_1_26rem]">
               <p className="inline-flex items-center gap-2.5 border border-rule bg-sheet px-3 py-1.5">
                 <span className="h-1.5 w-1.5 flex-none rounded-full bg-stamp-green" />
-                <span className="font-mono text-xs text-ink/60">
+                <span className="font-mono text-xs text-ink-soft">
                   Live on {publicEnv.network}, {publicEnv.contractId}
                 </span>
               </p>
               <h1 className="mt-6 max-w-[22ch] font-serif text-2xl leading-[1.04] tracking-tight text-balance sm:text-3xl">
                 Send the invoice. Get paid from any chain. Sell it if you cannot wait.
               </h1>
-              <p className="mt-5 max-w-[56ch] text-base leading-relaxed text-ink/70">
+              <p className="mt-5 max-w-[56ch] text-base leading-relaxed text-ink-soft">
                 Ileri issues your invoice as a bearer instrument on NEAR. Your client pays
                 with whatever they already hold, on whatever chain they hold it. Need the
                 money before the due date? Sell the invoice, and every later payment goes
@@ -84,12 +84,12 @@ export default function Home() {
                 </Link>
                 <a
                   href="#how"
-                  className="inline-flex min-h-11 items-center px-1 text-base text-ink/70 underline decoration-rule underline-offset-[5px] hover:text-ink"
+                  className="inline-flex min-h-11 items-center px-1 text-base text-ink-soft underline decoration-rule underline-offset-[5px] hover:text-ink"
                 >
                   Walk through one invoice
                 </a>
               </div>
-              <p className="mt-5 max-w-[52ch] text-xs leading-relaxed text-ink/60">
+              <p className="mt-5 max-w-[52ch] text-xs leading-relaxed text-ink-soft">
                 No account to open and no fee to the platform. You need a NEAR wallet.
                 Your client does not.
               </p>
@@ -135,7 +135,7 @@ export default function Home() {
         <section id="how" className="border-b border-rule">
           <div className="mx-auto w-full max-w-[1080px] px-5 py-16">
             <Heading>Follow one invoice</Heading>
-            <p className="mt-3 max-w-[60ch] text-base leading-relaxed text-ink/70">
+            <p className="mt-3 max-w-[60ch] text-base leading-relaxed text-ink-soft">
               Invoice no. 7, from the Monday it was written to the day the money landed.
               Pick a step, or walk it through.
             </p>
@@ -151,7 +151,7 @@ export default function Home() {
           />
           <div className="relative mx-auto w-full max-w-[1080px] px-5 py-16">
             <Heading>The fair questions</Heading>
-            <p className="mt-3 max-w-[60ch] text-base leading-relaxed text-ink/70">
+            <p className="mt-3 max-w-[60ch] text-base leading-relaxed text-ink-soft">
               The ones worth asking before you put a real invoice through. Each answer is
               countersigned by the part of the contract that enforces it.
             </p>
@@ -203,7 +203,7 @@ export default function Home() {
               <h2 className="max-w-[28ch] font-serif text-xl leading-tight text-balance">
                 An invoice is a promise. Make it one you can act on.
               </h2>
-              <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-ink/70">
+              <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-ink-soft">
                 Issue the first one in about a minute. You can send it, sell it, or leave
                 it to be paid.
               </p>
@@ -217,7 +217,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/market"
-                className="inline-flex min-h-11 items-center px-1 text-base text-ink/70 underline decoration-rule underline-offset-[5px] hover:text-ink"
+                className="inline-flex min-h-11 items-center px-1 text-base text-ink-soft underline decoration-rule underline-offset-[5px] hover:text-ink"
               >
                 Browse invoices for sale
               </Link>
@@ -233,19 +233,19 @@ export default function Home() {
             <span className="mark h-7 w-7 flex-none" aria-hidden="true" />
             <span className="font-serif text-base leading-none">Ileri</span>
           </span>
-          <p className="max-w-[44ch] text-xs leading-relaxed text-ink/60">
+          <p className="max-w-[44ch] text-xs leading-relaxed text-ink-soft">
             Yoruba for promise. Built for the NEAR hackathon on {publicEnv.network}.
             Amounts, account names and due dates on this network are public on chain.
           </p>
           <span className="flex-1" />
           <nav className="flex flex-wrap gap-5 text-xs">
-            <a href="#how" className="text-ink/60 hover:text-ink">
+            <a href="#how" className="text-ink-soft hover:text-ink">
               How it works
             </a>
-            <Link href="/market" className="text-ink/60 hover:text-ink">
+            <Link href="/market" className="text-ink-soft hover:text-ink">
               Market
             </Link>
-            <Link href="/app" className="text-ink/60 hover:text-ink">
+            <Link href="/app" className="text-ink-soft hover:text-ink">
               Your invoices
             </Link>
           </nav>
@@ -274,7 +274,7 @@ function Fact({
   return (
     <div>
       <p className="tabular text-lg">{figure}</p>
-      <p className="mt-1.5 text-sm leading-relaxed text-ink/70">{children}</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{children}</p>
     </div>
   );
 }
@@ -297,10 +297,10 @@ function Question({
   return (
     <div className="border-l border-stamp-red pl-6">
       <h3 className="text-base font-medium">{question}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-ink/70">{children}</p>
+      <p className="mt-3 text-sm leading-relaxed text-ink-soft">{children}</p>
       <p className="mt-4 flex items-start gap-2.5 border-t border-rule pt-3">
         <span className="seal mt-px h-5 w-5 flex-none" aria-hidden="true" />
-        <span className="font-mono text-xs leading-relaxed text-ink/60">
+        <span className="font-mono text-xs leading-relaxed text-ink-soft">
           countersigned by {countersign}
         </span>
       </p>

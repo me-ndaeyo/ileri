@@ -193,16 +193,16 @@ export function AcceptInvoice({
           sees first was the only one not drawn as the instrument. */}
       <InvoiceSheet invoice={invoice}>
         {phase === "reading" ? (
-          <p className="text-xs text-ink/60">Checking your link…</p>
+          <p className="text-xs text-ink-soft">Checking your link…</p>
         ) : document ? (
           <>
-            <p className="text-xs text-ink/60">Billed to</p>
+            <p className="text-xs text-ink-soft">Billed to</p>
             <p className="mt-1 text-sm">{document.client.name}</p>
 
             <div className="mt-5 border-t border-rule">
               <div className="flex gap-4 border-b border-rule py-2.5">
-                <span className="flex-1 text-xs text-ink/60">Description</span>
-                <span className="w-28 text-right text-xs text-ink/60">Amount</span>
+                <span className="flex-1 text-xs text-ink-soft">Description</span>
+                <span className="w-28 text-right text-xs text-ink-soft">Amount</span>
               </div>
               {document.lines.map((line, index) => (
                 <div key={index} className="flex items-baseline gap-4 border-b border-rule py-2.5">
@@ -215,13 +215,13 @@ export function AcceptInvoice({
             </div>
 
             {document.notes ? (
-              <p className="mt-4 max-w-[60ch] text-xs leading-relaxed text-ink/70">
+              <p className="mt-4 max-w-[60ch] text-xs leading-relaxed text-ink-soft">
                 {document.notes}
               </p>
             ) : null}
           </>
         ) : (
-          <p className="max-w-[60ch] text-xs leading-relaxed text-ink/60">
+          <p className="max-w-[60ch] text-xs leading-relaxed text-ink-soft">
             The line items could not be opened, so only what is on chain is shown above.
             The amount and the due date are the chain&apos;s own, and they are what binds.
           </p>
@@ -237,18 +237,18 @@ export function AcceptInvoice({
       ) : null}
 
       {error ? (
-        <p className="mt-4 border border-stamp-red/40 bg-sheet p-3 text-xs text-stamp-red">
+        <p className="mt-4 border border-stamp-red bg-sheet p-3 text-xs text-stamp-red">
           {error}
         </p>
       ) : null}
 
       {invoice.status !== "Issued" ? (
-        <p className="mt-6 border border-rule bg-sheet p-4 text-xs text-ink/60">
+        <p className="mt-6 border border-rule bg-sheet p-4 text-xs text-ink-soft">
           This invoice is {invoice.status.toLowerCase()}, so there is nothing to decide.
         </p>
       ) : !accountId ? (
         <div className="mt-6">
-          <p className="mb-3 max-w-[48ch] text-sm text-ink/70">
+          <p className="mb-3 max-w-[48ch] text-sm text-ink-soft">
             Connect a NEAR wallet to accept or reject. Accepting records that you agreed to
             this invoice; it does not pay it.
           </p>
@@ -256,7 +256,7 @@ export function AcceptInvoice({
         </div>
       ) : (
         <div className="mt-6">
-          <p className="flex flex-wrap items-center gap-3 text-xs text-ink/60">
+          <p className="flex flex-wrap items-center gap-3 text-xs text-ink-soft">
             <span>Signed in as {accountId}</span>
             {/* The reason this component needed it: an issuer opening their own invite
                 link has to be able to stop being the issuer. */}
@@ -280,7 +280,7 @@ export function AcceptInvoice({
             </Button>
           </div>
           <label className="mt-4 block">
-            <span className="text-xs text-ink/60">
+            <span className="text-xs text-ink-soft">
               If you reject it, why? Optional, and kept offchain.
             </span>
             <input
@@ -299,7 +299,7 @@ function Done({ title, body, invoiceId }: { title: string; body: string; invoice
   return (
     <div className="mt-8">
       <p className="text-base">{title}</p>
-      <p className="mt-2 max-w-[52ch] text-sm text-ink/70">{body}</p>
+      <p className="mt-2 max-w-[52ch] text-sm text-ink-soft">{body}</p>
       <a
         href={`/pay/${invoiceId}`}
         className="mt-6 inline-block border border-rule px-4 py-2 text-sm hover:bg-paper"

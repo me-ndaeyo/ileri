@@ -35,7 +35,7 @@ export function ConnectWallet({ accountId }: { accountId: string | null }) {
   if (accountId) {
     return (
       <div className="flex items-center gap-3 text-xs">
-        <span className="text-ink/60">Signed in as</span>
+        <span className="text-ink-soft">Signed in as</span>
         <span>{accountId}</span>
         <Button
           onClick={() => run(signOut)}

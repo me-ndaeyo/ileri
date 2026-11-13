@@ -75,7 +75,7 @@ async function Listings({
     return (
       <>
         <h1 className="font-serif text-xl leading-tight">Invoices for sale</h1>
-        <p className="mt-6 border border-stamp-red/40 bg-sheet p-4 text-xs text-stamp-red">
+        <p className="mt-6 border border-stamp-red bg-sheet p-4 text-xs text-stamp-red">
           Could not reach the contract just now, so no listings are shown rather than
           shown wrong.{" "}
           {String(error instanceof Error ? error.message : error)}
@@ -92,7 +92,7 @@ async function Listings({
       <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
         <div>
           <h1 className="font-serif text-xl leading-tight">Invoices for sale</h1>
-          <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-ink/70">
+          <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-ink-soft">
             {listings.length === 0
               ? "Nothing is listed right now."
               : `${listings.length} accepted ${listings.length === 1 ? "invoice" : "invoices"}, each listed below what is still owed on it. Buy one and you become the party the client pays.`}
@@ -102,10 +102,10 @@ async function Listings({
           <>
             <span className="flex-1" />
             <div className="text-right">
-              <p className="text-xs text-ink/60">Unpaid on offer</p>
+              <p className="text-xs text-ink-soft">Unpaid on offer</p>
               <p className="mt-1 flex items-baseline justify-end gap-2">
                 <span className="tabular text-lg">{formatAmount(onOffer)}</span>
-                <span className="font-mono text-xs text-ink/60">USDC</span>
+                <span className="font-mono text-xs text-ink-soft">USDC</span>
               </p>
             </div>
           </>
@@ -113,7 +113,7 @@ async function Listings({
       </div>
 
       {listings.length === 0 ? (
-        <p className="mt-8 border border-rule bg-sheet p-4 text-sm text-ink/60">
+        <p className="mt-8 border border-rule bg-sheet p-4 text-sm text-ink-soft">
           When a holder lists an invoice below its unpaid balance, it appears here. If you
           hold one,{" "}
           <Link href="/app" className="underline decoration-rule underline-offset-2">
@@ -128,7 +128,7 @@ async function Listings({
               <span className="text-sm font-medium text-stamp-red">
                 There is no recourse here.
               </span>
-              <span className="min-w-0 flex-[1_1_28rem] text-sm leading-relaxed text-ink/70">
+              <span className="min-w-0 flex-[1_1_28rem] text-sm leading-relaxed text-ink-soft">
                 If a client never pays, whoever holds the invoice carries the loss. Nothing
                 is insured, a purchase cannot be reversed, and Ileri takes no fee and no
                 position. The client&apos;s record is the only thing to go on.
@@ -189,18 +189,18 @@ function Card({ listing }: { listing: ListingView }) {
             {invoice.client ? (
               <AccountChip accountId={invoice.client} />
             ) : (
-              <span className="text-xs text-ink/60 italic">no client bound</span>
+              <span className="text-xs text-ink-soft italic">no client bound</span>
             )}
           </span>
         </span>
 
         <span className="block px-5 pt-4">
-          <span className="block text-xs text-ink/60">Asking price</span>
+          <span className="block text-xs text-ink-soft">Asking price</span>
           <span className="mt-1 flex items-baseline gap-2">
             <span className="tabular font-serif text-lg leading-none">
               {formatAmount(price)}
             </span>
-            <span className="font-mono text-xs text-ink/60">USDC</span>
+            <span className="font-mono text-xs text-ink-soft">USDC</span>
           </span>
         </span>
 
@@ -216,7 +216,7 @@ function Card({ listing }: { listing: ListingView }) {
           <Line label="You wait">
             {days_to_due > 0 ? `${days_to_due} days` : "it is past due"}
             {annual === null ? null : (
-              <span className="text-ink/60"> · {annual.toFixed(0)}% a year</span>
+              <span className="text-ink-soft"> · {annual.toFixed(0)}% a year</span>
             )}
           </Line>
           <Line label="Client's record" last>
@@ -226,7 +226,7 @@ function Card({ listing }: { listing: ListingView }) {
                 {client_reputation.paid_on_time} on time, {late} late
               </span>
             ) : (
-              <span className="text-ink/60">never accepted by a signed-in client</span>
+              <span className="text-ink-soft">never accepted by a signed-in client</span>
             )}
           </Line>
         </span>
@@ -252,7 +252,7 @@ function Line({
       className={`flex items-baseline justify-between gap-4 py-2 text-xs ${last ? "" : "border-b border-rule"
         }`}
     >
-      <span className="text-ink/60">{label}</span>
+      <span className="text-ink-soft">{label}</span>
       <span className="tabular">{children}</span>
     </span>
   );

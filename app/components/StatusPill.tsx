@@ -12,7 +12,7 @@ const STYLES: Record<StatusView, string> = {
   Rejected: "border-ink text-ink",
   Overdue: "border-stamp-red text-stamp-red",
   // Cancelled reads as struck through and faded, per the design.
-  Cancelled: "border-rule text-ink/50 line-through",
+  Cancelled: "border-rule text-ink-faint line-through",
 };
 
 /** Sentence case, plain words. An action keeps one name through the whole flow. */

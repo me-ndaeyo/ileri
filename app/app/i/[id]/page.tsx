@@ -38,7 +38,7 @@ export default function InvitePage({ params }: PageProps<"/i/[id]">) {
           </Link>
           <span className="flex-1" />
           <ThemeToggle />
-          <span className="flex items-center gap-2 text-xs text-ink/60">
+          <span className="flex items-center gap-2 text-xs text-ink-soft">
             <span className="h-1.5 w-1.5 flex-none rounded-full bg-stamp-green" />
             Opened with a private link. The key stayed in your browser.
           </span>
@@ -60,7 +60,7 @@ export default function InvitePage({ params }: PageProps<"/i/[id]">) {
 
       <footer className="border-t border-rule">
         <div className="mx-auto w-full max-w-[760px] px-5 py-6">
-          <p className="max-w-[68ch] text-xs leading-relaxed text-ink/60">
+          <p className="max-w-[68ch] text-xs leading-relaxed text-ink-soft">
             Accepting records on chain that you agreed to this invoice. Your account id,
             the amount, the due date and the status become public. Your name, the line
             items and any notes stay in an encrypted file that only you, the issuer and
@@ -86,7 +86,7 @@ async function Review({ params }: { params: PageProps<"/i/[id]">["params"] }) {
       <h1 className="max-w-[26ch] font-serif text-xl leading-tight text-balance">
         {invoice.issuer} sent you an invoice for {formatAmount(invoice.amount)} USDC
       </h1>
-      <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-ink/70">
+      <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-ink-soft">
         Read it, then accept it or send it back. Accepting makes it binding and lets the
         issuer sell it to a buyer, who would then be the one you pay. You need a NEAR
         wallet to accept. You do not need one to read this, and a payment in full counts as

@@ -13,7 +13,7 @@ const COLOUR: Record<StatusView, string> = {
   PartiallyPaid: "text-stamp-blue border-stamp-blue",
   Paid: "text-stamp-green border-stamp-green",
   Rejected: "text-ink border-ink",
-  Cancelled: "text-ink/50 border-ink/50",
+  Cancelled: "text-ink-faint border-ink-faint",
   Overdue: "text-stamp-red border-stamp-red",
 };
 

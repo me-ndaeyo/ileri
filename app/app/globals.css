@@ -15,6 +15,7 @@
   --rule: #cec6b2; /* every hairline and field border, never text */
   --ink: #171a24; /* text and engraving, 14.9:1 on paper */
   --ink-soft: #5a5e6b; /* secondary text, still passes at 11px, 5.9:1 */
+  --ink-faint: #767166; /* struck through, cancelled, de-emphasised. 4.8:1 */
 
   /* Status, and status only. Colour in this brand never belongs to the brand. */
   --stamp-blue: #2a3f7a; /* accepted, and money still crossing chains, 8.1:1 */
@@ -46,6 +47,7 @@
     --rule: #3b372c;
     --ink: #f0ebdd;
     --ink-soft: #a8a192;
+    --ink-faint: #7e7869;
     --stamp-blue: #8ea2e0;
     --stamp-green: #6fc79a;
     --stamp-red: #e08a86;
@@ -60,6 +62,7 @@
   --rule: #3b372c;
   --ink: #f0ebdd;
   --ink-soft: #a8a192;
+  --ink-faint: #7e7869;
   --stamp-blue: #8ea2e0;
   --stamp-green: #6fc79a;
   --stamp-red: #e08a86;
@@ -75,12 +78,18 @@
 }
 
 @theme inline {
+  /* Never write an opacity modifier on one of these, as in `text-ink/60`. Every value
+     here is a `var(...)` rather than a literal colour, so Tailwind cannot compute the
+     mix and SILENTLY DROPS the alpha: `text-ink/60` compiled to plain `color: var(--ink)`,
+     and 157 uses of "secondary" text across the app rendered at full strength with
+     nothing receding anywhere. There is a named token for each weight instead. */
   --color-paper: var(--paper);
   --color-sheet: var(--sheet);
   --color-wash: var(--wash);
   --color-rule: var(--rule);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
   --color-stamp-blue: var(--stamp-blue);
   --color-stamp-green: var(--stamp-green);
   --color-stamp-red: var(--stamp-red);
@@ -227,6 +236,55 @@ body {
 }
 :root[data-theme="dark"] .mark-sheet {
   background-image: url("../public/engraving/mark-dark.svg");
+}
+
+/* The instrument stays paper, whatever the app is doing.
+   
+   A banknote is a light object. The desk it lies on can go dark, and under a lamp that is
+   exactly what happens, but the note itself does not invert. Keeping it fixed also means
+   the sheet looks the same in both themes, which matters more here than anywhere else: the
+   same drawing is the NFT's image, and that has one appearance wherever it is shown.
+   
+   Done by re-declaring the tokens for this subtree rather than by hardcoding colours on
+   the component, so everything inside it, including the stamps, follows without knowing
+   anything about themes. */
+.instrument {
+  --paper: #f4f1e8;
+  --sheet: #fbfaf5;
+  --wash: #e9e4d6;
+  --rule: #cec6b2;
+  --ink: #171a24;
+  --ink-soft: #5a5e6b;
+  --ink-faint: #767166;
+  --stamp-blue: #2a3f7a;
+  --stamp-green: #1c5b40;
+  --stamp-red: #8a2b2b;
+  --gold: #9c7a22;
+  color-scheme: light;
+}
+
+/* The engraving too. The dark overrides above are more specific than a bare
+   `.instrument .band`, so these have to name the theme as well to win it back. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .instrument .band {
+    background-image: url("../public/engraving/guilloche-band.svg");
+  }
+  :root:not([data-theme="light"]) .instrument .rosette {
+    background-image: url("../public/engraving/rosette-ink.svg");
+  }
+  :root:not([data-theme="light"]) .instrument .seal {
+    background-image: url("../public/engraving/rosette.svg");
+  }
+}
+
+:root[data-theme="dark"] .instrument .band {
+  background-image: url("../public/engraving/guilloche-band.svg");
+}
+:root[data-theme="dark"] .instrument .rosette {
+  background-image: url("../public/engraving/rosette-ink.svg");
+}
+:root[data-theme="dark"] .instrument .seal {
+  background-image: url("../public/engraving/rosette.svg");
 }
 
 /* Two rules with a hair between them, as on a certificate, to close a section. A single

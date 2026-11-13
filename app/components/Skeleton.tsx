@@ -37,19 +37,19 @@ function Busy({ label, children }: { label: string; children: React.ReactNode })
 export function SheetSkeleton() {
   return (
     <Busy label="Loading the invoice">
-      <article className="relative overflow-hidden border border-rule bg-sheet">
+      <article className="instrument relative overflow-hidden border border-rule bg-sheet">
         <div className="band h-6 w-full" aria-hidden="true" />
 
         <div className="flex items-start justify-between gap-4 px-6 pt-6">
           <div>
             <p className="font-serif text-lg leading-none">Ileri</p>
-            <p className="mt-1 text-xs text-ink/60">Promise to pay the bearer</p>
+            <p className="mt-1 text-xs text-ink-soft">Promise to pay the bearer</p>
           </div>
           <Line className="mt-1 h-3 w-28" />
         </div>
 
         <div className="px-6 pt-6">
-          <p className="text-xs text-ink/60">Amount due</p>
+          <p className="text-xs text-ink-soft">Amount due</p>
           <Line className="mt-2 h-9 w-52" />
           <Line className="mt-2.5 h-3 w-64" />
         </div>
@@ -57,7 +57,7 @@ export function SheetSkeleton() {
         <div className="flex flex-wrap gap-x-10 gap-y-4 px-6 pt-6">
           {["Issued by", "Payable by", "Due"].map((label) => (
             <div key={label}>
-              <p className="text-xs text-ink/60">{label}</p>
+              <p className="text-xs text-ink-soft">{label}</p>
               <Line className="mt-1.5 h-3 w-32" />
             </div>
           ))}
@@ -69,7 +69,7 @@ export function SheetSkeleton() {
               key={label}
               className="flex items-baseline justify-between gap-4 border-b border-rule px-6 py-3 last:border-0"
             >
-              <dt className="text-xs text-ink/60">{label}</dt>
+              <dt className="text-xs text-ink-soft">{label}</dt>
               <dd>
                 <Line className="h-3 w-24" />
               </dd>
@@ -169,7 +169,7 @@ export function CardsSkeleton({
             </div>
 
             <div className="px-5 pt-4">
-              <p className="text-xs text-ink/60">Asking price</p>
+              <p className="text-xs text-ink-soft">Asking price</p>
               <Line className="mt-1.5 h-6 w-32" />
             </div>
 
@@ -182,7 +182,7 @@ export function CardsSkeleton({
                       j === 3 ? "" : "border-b border-rule"
                     }`}
                   >
-                    <span className="text-xs text-ink/60">{row}</span>
+                    <span className="text-xs text-ink-soft">{row}</span>
                     <Line className="h-3 w-20" />
                   </div>
                 ),

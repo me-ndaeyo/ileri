@@ -135,7 +135,7 @@ export function InvoiceActions({
     return (
       <section>
         <h2 className="text-base">New invite link</h2>
-        <p className="mt-2 max-w-[52ch] text-sm text-ink/70">
+        <p className="mt-2 max-w-[52ch] text-sm text-ink-soft">
           The old link no longer works. This one is shown once and is not stored anywhere,
           so copy it now.
         </p>
@@ -175,7 +175,7 @@ export function InvoiceActions({
     actions.push(
       <div key="list" className="flex w-full flex-wrap items-end gap-2">
         <label className="flex-1 min-w-[12rem]">
-          <span className="text-xs text-ink/60">
+          <span className="text-xs text-ink-soft">
             Sell it for, in USDC. You collect this now instead of{" "}
             <Amount value={owed} /> later.
           </span>
@@ -218,7 +218,7 @@ export function InvoiceActions({
 
   if (actions.length === 0 && !error) {
     return (
-      <p className="text-xs text-ink/60">
+      <p className="text-xs text-ink-soft">
         Nothing to do here right now.
         {invoice.stored_status === "Issued"
           ? " Waiting for the client to accept."
@@ -231,7 +231,7 @@ export function InvoiceActions({
     <section>
       <div className="flex flex-wrap items-end gap-3">{actions}</div>
       {error ? (
-        <p className="mt-3 border border-stamp-red/40 bg-sheet p-3 text-xs text-stamp-red">
+        <p className="mt-3 border border-stamp-red bg-sheet p-3 text-xs text-stamp-red">
           {error}
         </p>
       ) : null}

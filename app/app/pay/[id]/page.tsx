@@ -33,7 +33,7 @@ export default function PayPage({ params }: PageProps<"/pay/[id]">) {
           </Link>
           <span className="flex-1" />
           <ThemeToggle />
-          <span className="text-xs text-ink/60">
+          <span className="text-xs text-ink-soft">
             No account needed. You pay from your own wallet.
           </span>
         </div>
@@ -57,7 +57,7 @@ async function Detail({ params }: { params: PageProps<"/pay/[id]">["params"] }) 
     invoice = await getInvoice(publicEnv.contractId, id);
   } catch (error) {
     return (
-      <p className="border border-stamp-red/40 bg-sheet p-4 text-xs text-stamp-red">
+      <p className="border border-stamp-red bg-sheet p-4 text-xs text-stamp-red">
         Could not reach the contract, so the amount due cannot be confirmed. Nothing has
         been sent. {error instanceof Error ? error.message : String(error)}
       </p>
@@ -68,7 +68,7 @@ async function Detail({ params }: { params: PageProps<"/pay/[id]">["params"] }) 
   return (
     <>
       <h1 className="text-2xl">Pay invoice no. {invoice.id}</h1>
-      <p className="mt-2 max-w-[60ch] text-sm text-ink/70">
+      <p className="mt-2 max-w-[60ch] text-sm text-ink-soft">
         Issued by {invoice.issuer}. Everything below is read from the contract at{" "}
         {publicEnv.contractId}, not from our records.
       </p>
@@ -83,7 +83,7 @@ async function Detail({ params }: { params: PageProps<"/pay/[id]">["params"] }) 
           amount on a settled invoice, so a deposit address for one would be a trap. */}
       {invoice.unpaid === "0" ? null : <PayFromAnyChain invoiceId={invoice.id} />}
 
-      <p className="mt-6 text-xs text-ink/60">{" "}
+      <p className="mt-6 text-xs text-ink-soft">{" "}
         <a
           className="underline"
           href={`${explorerBase}/address/${publicEnv.contractId}`}

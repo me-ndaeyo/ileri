@@ -61,7 +61,7 @@ async function SignedInArea({ searchParams }: { searchParams: PageProps<"/app">[
     return (
       <div className="max-w-[52ch]">
         <h1 className="font-serif text-xl leading-tight">Your invoices</h1>
-        <p className="mt-3 text-sm leading-relaxed text-ink/70">
+        <p className="mt-3 text-sm leading-relaxed text-ink-soft">
           Connect a NEAR wallet to see the invoices you have sent and received. Signing in
           costs nothing and sends no transaction: your wallet signs a message, not a
           transfer.
@@ -90,7 +90,7 @@ async function SignedInArea({ searchParams }: { searchParams: PageProps<"/app">[
       <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
         <div>
           <h1 className="font-serif text-xl leading-tight">Your invoices</h1>
-          <p className="mt-2 text-sm text-ink/70">
+          <p className="mt-2 text-sm text-ink-soft">
             {mine.length === 0
               ? "Nothing issued yet."
               : `${mine.length} issued, read from ${publicEnv.contractId}.`}
@@ -172,12 +172,12 @@ function Figure({
 }) {
   return (
     <div className="bg-sheet px-5 py-4">
-      <p className={`text-xs ${tone || "text-ink/60"}`}>{label}</p>
+      <p className={`text-xs ${tone || "text-ink-soft"}`}>{label}</p>
       <p className="mt-1.5 flex items-baseline gap-2">
         <span className={`tabular text-lg ${tone}`}>{children}</span>
-        <span className="font-mono text-xs text-ink/60">USDC</span>
+        <span className="font-mono text-xs text-ink-soft">USDC</span>
       </p>
-      <p className="mt-1 text-xs text-ink/60">{count}</p>
+      <p className="mt-1 text-xs text-ink-soft">{count}</p>
     </div>
   );
 }
@@ -202,19 +202,19 @@ function Ledger({
         <h2 className="text-base whitespace-nowrap">{title}</h2>
         <span className="h-px flex-1 bg-rule" />
         {invoices ? (
-          <span className="font-mono text-xs text-ink/60">{invoices.length}</span>
+          <span className="font-mono text-xs text-ink-soft">{invoices.length}</span>
         ) : null}
       </div>
 
       {/* `null` means the read failed, which is not the same as having none. Saying
           "nothing here" after a network error would be a lie. */}
       {invoices === null ? (
-        <p className="mt-4 border border-stamp-red/40 bg-sheet p-4 text-xs text-stamp-red">
+        <p className="mt-4 border border-stamp-red bg-sheet p-4 text-xs text-stamp-red">
           Could not reach the contract just now, so this list is not shown rather than
           shown wrong. Reload to try again.
         </p>
       ) : invoices.length === 0 ? (
-        <p className="mt-4 border border-rule bg-sheet p-4 text-xs text-ink/60">{empty}</p>
+        <p className="mt-4 border border-rule bg-sheet p-4 text-xs text-ink-soft">{empty}</p>
       ) : (
         <>
         <ul className="mt-4 border-t border-rule">
@@ -233,7 +233,7 @@ function Ledger({
                     {invoice.client ? (
                       <AccountChip accountId={invoice.client} />
                     ) : (
-                      <span className="text-xs text-ink/60 italic">not accepted yet</span>
+                      <span className="text-xs text-ink-soft italic">not accepted yet</span>
                     )}
                   </span>
                 </span>
@@ -242,7 +242,7 @@ function Ledger({
                   <span className="tabular block text-sm">
                     <Amount value={invoice.amount} symbol="USDC" />
                   </span>
-                  <span className="mt-1 block text-xs text-ink/60">
+                  <span className="mt-1 block text-xs text-ink-soft">
                     {invoice.paid === "0" ? (
                       "nothing paid"
                     ) : (

@@ -28,7 +28,7 @@ export function Pager<T>({
   // One page of results needs no pager, but the count is still worth stating.
   if (page.pages <= 1) {
     return page.total === 0 ? null : (
-      <p className="mt-4 text-xs text-ink/60">
+      <p className="mt-4 text-xs text-ink-soft">
         {page.total} {page.total === 1 ? noun : `${noun}s`}
       </p>
     );
@@ -56,7 +56,7 @@ export function Pager<T>({
 
       <span className="flex-1" />
 
-      <p className="tabular text-xs text-ink/60">
+      <p className="tabular text-xs text-ink-soft">
         {first} to {first + page.rows.length - 1} of {page.total}
         <span className="sr-only">
           {" "}
@@ -67,7 +67,7 @@ export function Pager<T>({
       {/* Only shown when it is actually true, because it is a limitation and not a
           footnote: past this many, the oldest are not reachable from here. */}
       {page.capped ? (
-        <p className="basis-full text-xs text-ink/60">
+        <p className="basis-full text-xs text-ink-soft">
           Showing the most recent {page.total}. Older ones than that are on chain but not
           listed here.
         </p>
@@ -89,7 +89,7 @@ function Step({
   // cannot be followed, rather than an anchor with a click handler that refuses.
   if (disabled) {
     return (
-      <span className="inline-flex min-h-11 items-center px-3 text-sm text-ink/40">
+      <span className="inline-flex min-h-11 items-center px-3 text-sm text-ink-faint">
         {children}
       </span>
     );

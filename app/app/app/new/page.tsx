@@ -18,12 +18,12 @@ export default function NewInvoicePage() {
       <main className="mx-auto w-full max-w-[760px] flex-1 px-5 py-10">
         <Link
           href="/app"
-          className="text-sm text-ink/60 underline decoration-rule underline-offset-4 hover:text-ink"
+          className="text-sm text-ink-soft underline decoration-rule underline-offset-4 hover:text-ink"
         >
           Back to your invoices
         </Link>
         <h1 className="mt-4 font-serif text-xl leading-tight">Issue an invoice</h1>
-        <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-ink/70">
+        <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-ink-soft">
           Only the amount, the due date and the token reach the chain. Everything else
           stays in a file encrypted in your browser, and only its hash is recorded, which
           is what proves later that nobody changed it.
@@ -54,7 +54,7 @@ async function Gate() {
   if (!accountId) {
     return (
       <>
-        <p className="mt-3 max-w-[48ch] text-sm text-ink/70">
+        <p className="mt-3 max-w-[48ch] text-sm text-ink-soft">
           Connect a NEAR wallet first. Creating an invoice signs one transaction and
           attaches a small storage deposit, which you get back when the invoice closes.
         </p>

@@ -35,7 +35,7 @@ export function BuyInvoice({
   if (!viewer) {
     return (
       <Panel>
-        <p className="text-sm text-ink/70">
+        <p className="text-sm text-ink-soft">
           Connect a wallet holding USDC to buy this invoice. Your wallet signs one
           transfer and the sale settles with it.
         </p>
@@ -51,7 +51,7 @@ export function BuyInvoice({
   if (viewer === invoice.holder) {
     return (
       <Panel>
-        <p className="text-sm text-ink/70">
+        <p className="text-sm text-ink-soft">
           You are holding this invoice, so there is nothing here to buy. Take it off the
           market from{" "}
           <Link className="underline" href={`/app/invoice/${invoice.id}`}>
@@ -146,7 +146,7 @@ function Buy({
     return (
       <Panel tone="good">
         <h2 className="text-base">Invoice no. {invoice.id} is yours</h2>
-        <p className="mt-2 text-sm text-ink/70">
+        <p className="mt-2 text-sm text-ink-soft">
           The seller has been paid and the invoice has moved to {viewer}. Every payment on
           it from now on goes to you, with nothing left to set up.
         </p>
@@ -163,7 +163,7 @@ function Buy({
   return (
     <Panel>
       <h2 className="text-base">Buy this invoice</h2>
-      <p className="mt-2 max-w-[56ch] text-sm text-ink/70">
+      <p className="mt-2 max-w-[56ch] text-sm text-ink-soft">
         Your wallet will show one transfer of <Amount value={price} symbol="USDC" /> to{" "}
         {contractId}. The invoice moves to you and the seller is paid in that same
         transaction.
@@ -178,7 +178,7 @@ function Buy({
         >
           Buy for {formatAmount(asking)} USDC
         </Button>
-        <span className="text-xs text-ink/60">
+        <span className="text-xs text-ink-soft">
           {checked ? (
             balance !== null ? (
               <>
@@ -201,12 +201,12 @@ function Buy({
       ) : null}
 
       {error ? (
-        <p className="mt-3 border border-stamp-red/40 bg-paper p-3 text-xs text-stamp-red">
+        <p className="mt-3 border border-stamp-red bg-paper p-3 text-xs text-stamp-red">
           {error}
         </p>
       ) : null}
 
-      <p className="mt-4 max-w-[56ch] text-xs text-ink/60">
+      <p className="mt-4 max-w-[56ch] text-xs text-ink-soft">
         If the client never pays, you carry that loss. There is no insurance, no recourse
         against the issuer, and a sale cannot be undone.
       </p>
