@@ -66,7 +66,6 @@ export function AppNav({
               place for it, and the account id it signs out of is in the bottom bar where
               there is room to read it. */}
           <span className="flex items-center gap-2 sm:hidden">
-            <ThemeToggle />
             {accountId ? (
               <SignOutButton />
             ) : (
@@ -84,21 +83,22 @@ export function AppNav({
       >
         <div className="flex items-stretch justify-between gap-3 px-4 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
           <span className="flex items-stretch gap-1">
-            <BottomTab href="/app" active={current === "invoices"}>
-              Invoices
+            <BottomTab href="/app" active={current === "invoices"} label="Invoices">
+              {INVOICES_ICON}
             </BottomTab>
-            <BottomTab href="/market" active={current === "market"}>
-              Market
+            <BottomTab href="/market" active={current === "market"} label="Market">
+              {MARKET_ICON}
             </BottomTab>
           </span>
 
-          {accountId ? (
-            /* Identity, not an action. Account ids run long, so this is allowed to clip
-               rather than squeeze the tabs. */
-            <span className="flex min-w-0 items-center">
-              <AccountChip accountId={accountId} className="max-w-[11rem]" />
-            </span>
-          ) : null}
+          <span className="flex min-w-0 items-center gap-2">
+            {accountId ? (
+              /* Identity, not an action. Account ids run long, so this is allowed to clip
+                 rather than squeeze anything. */
+              <AccountChip accountId={accountId} className="max-w-[8.5rem]" />
+            ) : null}
+            <ThemeToggle className="flex-none" />
+          </span>
         </div>
       </nav>
     </>
@@ -129,25 +129,63 @@ function Tab({
   );
 }
 
-/** The same tab, sized for a thumb rather than a cursor. */
+/* A note with writing on it, and a price tag. Both echo shapes the app already uses: the
+   invoice stub, and the gold that only ever means for sale. */
+const INVOICES_ICON = (
+  <>
+    <path d="M5.4 3.6h13.2v16.8H5.4z" />
+    <path d="M8.4 8.4h7.2M8.4 12h7.2M8.4 15.6h4.2" />
+  </>
+);
+
+const MARKET_ICON = (
+  <>
+    <path d="M12.8 3.6H20.4v7.6l-9.2 9.2a1.2 1.2 0 0 1-1.7 0L3.6 14.5a1.2 1.2 0 0 1 0-1.7Z" />
+    <circle cx="16.6" cy="7.4" r="1.3" />
+  </>
+);
+
+/**
+ * A tab sized for a thumb, labelled by its icon.
+ *
+ * Icon only, because two words plus an account id plus a theme control did not fit a
+ * phone and the words were the least load-bearing part: there are two destinations and
+ * both have a conventional shape. The name is still announced, and the current tab is
+ * marked with the accent rather than by colour alone.
+ */
 function BottomTab({
   href,
   active,
+  label,
   children,
 }: {
   href: "/app" | "/market";
   active: boolean;
+  label: string;
   children: React.ReactNode;
 }) {
   return (
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 items-center border-b-2 px-3 text-sm ${
-        active ? "border-stamp-red" : "border-transparent text-ink-soft"
+      title={label}
+      className={`flex min-h-11 w-12 items-center justify-center border-b-2 ${
+        active ? "border-stamp-red text-ink" : "border-transparent text-ink-soft"
       }`}
     >
-      {children}
+      <svg
+        viewBox="0 0 24 24"
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {children}
+      </svg>
+      <span className="sr-only">{label}</span>
     </Link>
   );
 }
