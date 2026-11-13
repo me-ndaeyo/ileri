@@ -9,10 +9,10 @@ const STYLES: Record<StatusView, string> = {
   Accepted: "border-stamp-blue text-stamp-blue",
   PartiallyPaid: "border-stamp-blue text-stamp-blue",
   Paid: "border-stamp-green text-stamp-green",
-  Rejected: "border-stamp-red text-stamp-red",
-  Overdue: "border-amber text-amber",
+  Rejected: "border-ink text-ink",
+  Overdue: "border-stamp-red text-stamp-red",
   // Cancelled reads as struck through and faded, per the design.
-  Cancelled: "border-rule text-ink/50 line-through",
+  Cancelled: "border-rule text-ink-faint line-through",
 };
 
 /** Sentence case, plain words. An action keeps one name through the whole flow. */

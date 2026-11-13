@@ -1,5 +1,6 @@
-//! Owner-only surface. Editing the payment-token allowlist is the owner's *only* power:
-//! there is no admin path to move funds, reassign invoices or change amounts.
+//! Owner-only surface. The owner may edit the payment-token allowlist and set the base
+//! URI that token images are served from. That is the whole of it: there is no admin path
+//! to move funds, reassign invoices, change amounts or touch an invoice's state.
 
 use near_sdk::{AccountId, near};
 
@@ -34,11 +35,42 @@ impl Contract {
     pub fn is_token_allowed(&self, token: AccountId) -> bool {
         self.allowed_tokens.contains(&token)
     }
+
+    /// Point token images at a host.
+    ///
+    /// Each token's `media` is the relative path `{id}/image.svg`, and a viewer joins it
+    /// to this as `{base_uri}/{media}`, so pass this WITHOUT a trailing slash. `None`
+    /// clears it, which leaves the relative path unresolvable and the image simply not
+    /// shown. That is the correct failure: a wrong absolute URL in a wallet is worse than
+    /// no image.
+    ///
+    /// This exists as a setter rather than an `init` argument because the contract was
+    /// already deployed and initialised when the images were built, and because the host
+    /// may change without the contract needing to.
+    ///
+    /// It cannot affect money or ownership. The worst an owner can do with it is point at
+    /// the wrong pictures.
+    pub fn set_base_uri(&mut self, base_uri: Option<String>) {
+        self.assert_owner();
+        let mut metadata = self
+            .nft_metadata
+            .get()
+            .clone()
+            .expect("nft metadata is set by init and never cleared");
+        metadata.base_uri = base_uri;
+        // Re-checked rather than assumed: the standard's own validation is the only thing
+        // standing between a typo here and every wallet reading broken metadata.
+        metadata.assert_valid();
+        self.nft_metadata.set(Some(metadata));
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::test_utils::*;
+    // `nft_metadata` is a trait method, so the trait has to be in scope to call it, the
+    // same way `ContractExt` has to be imported to write a `#[near] impl` block.
+    use near_contract_standards::non_fungible_token::metadata::NonFungibleTokenMetadataProvider;
 
     #[test]
     fn init_allowlist_is_readable() {
@@ -80,6 +112,53 @@ mod tests {
     fn issuer_is_not_owner() {
         let mut contract = setup(ISSUER);
         contract.add_allowed_token(acc(OTHER_TOKEN));
+    }
+
+    // --- base_uri, which is where token images are served from ---
+
+    #[test]
+    fn base_uri_starts_unset() {
+        let contract = setup(OWNER);
+        assert_eq!(contract.nft_metadata().base_uri, None);
+    }
+
+    #[test]
+    fn owner_can_set_and_clear_the_base_uri() {
+        let mut contract = setup(OWNER);
+
+        contract.set_base_uri(Some("https://ileri.app/api/nft".to_string()));
+        assert_eq!(
+            contract.nft_metadata().base_uri,
+            Some("https://ileri.app/api/nft".to_string())
+        );
+
+        // Clearing leaves the relative media unresolvable, so no image is shown. That is
+        // the right failure: no picture beats a wrong one.
+        contract.set_base_uri(None);
+        assert_eq!(contract.nft_metadata().base_uri, None);
+    }
+
+    #[test]
+    fn setting_the_base_uri_disturbs_nothing_else() {
+        let mut contract = setup(OWNER);
+        let before = contract.nft_metadata();
+
+        contract.set_base_uri(Some("https://ileri.app/api/nft".to_string()));
+        let after = contract.nft_metadata();
+
+        assert_eq!(after.spec, before.spec);
+        assert_eq!(after.name, before.name);
+        assert_eq!(after.symbol, before.symbol);
+        assert_eq!(after.reference, before.reference);
+        // And it is still an allowlist owner, not an invoice owner.
+        assert_eq!(contract.get_allowed_tokens(), vec![acc(USDC)]);
+    }
+
+    #[test]
+    #[should_panic(expected = "E_NOT_OWNER")]
+    fn stranger_cannot_set_the_base_uri() {
+        let mut contract = setup(STRANGER);
+        contract.set_base_uri(Some("https://attacker.example".to_string()));
     }
 
     #[test]

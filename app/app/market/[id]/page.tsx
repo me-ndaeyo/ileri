@@ -2,8 +2,10 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Amount } from "@/components/Amount";
+import { AppNav } from "@/components/AppNav";
 import { BuyInvoice } from "@/components/BuyInvoice";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { explorerBase, publicEnv } from "@/lib/env";
 import { getInvoice, getListing, type ListingView } from "@/lib/near";
 import { annualisedDiscount, discountPercent } from "@/lib/money";
@@ -20,15 +22,34 @@ export default function ListingPage({ params }: PageProps<"/market/[id]">) {
   // Pushing the await into the suspended child keeps the frame static and streams only
   // the part that genuinely depends on the URL.
   return (
-    <main className="mx-auto w-full max-w-[720px] px-4 py-10">
-      <Link href="/market" className="text-xs text-ink/60 hover:text-ink">
-        Back to the market
-      </Link>
-      <Suspense fallback={<p className="mt-6 text-xs text-ink/60">Loading invoice…</p>}>
-        <Detail params={params} />
+    <div className="flex min-h-dvh flex-col">
+      <Suspense fallback={<AppNav accountId={null} current="market" />}>
+        <Nav />
       </Suspense>
-    </main>
+      <main className="mx-auto w-full max-w-[760px] flex-1 px-5 py-10">
+        <Link
+          href="/market"
+          className="text-sm text-ink-soft underline decoration-rule underline-offset-4 hover:text-ink"
+        >
+          Back to the market
+        </Link>
+        <Suspense
+          fallback={
+            <div className="mt-6 flex flex-col gap-8">
+              <SheetSkeleton />
+              <PanelSkeleton lines={4} label="Loading the listing" />
+            </div>
+          }
+        >
+          <Detail params={params} />
+        </Suspense>
+      </main>
+    </div>
   );
+}
+
+async function Nav() {
+  return <AppNav accountId={await currentAccount()} current="market" />;
 }
 
 async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] }) {
@@ -41,7 +62,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
     listing = await getListing(publicEnv.contractId, id);
   } catch (error) {
     return (
-      <p className="mt-6 border border-stamp-red/40 bg-sheet p-4 text-xs text-stamp-red">
+      <p className="mt-6 border border-stamp-red bg-sheet p-4 text-xs text-stamp-red">
         Could not reach the contract. {error instanceof Error ? error.message : String(error)}
       </p>
     );
@@ -56,7 +77,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
     if (!invoice) notFound();
     return (
       <div className="mt-6">
-        <p className="border border-rule bg-sheet p-4 text-xs text-ink/60">
+        <p className="border border-rule bg-sheet p-4 text-xs text-ink-soft">
           Invoice {id} is not for sale. Its holder has not listed it, or it has already
           been bought or paid.
         </p>
@@ -86,15 +107,15 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
           </Line>
           <Line label="Your margin">
             <Amount value={listing.discount} symbol="USDC" />
-            <span className="text-ink/60"> · {percent.toFixed(1)}%</span>
+            <span className="text-ink-soft"> · {percent.toFixed(1)}%</span>
           </Line>
           <Line label="As a yearly rate">
             {annual === null ? (
-              <span className="text-ink/60">Past due, so no annual rate</span>
+              <span className="text-ink-soft">Past due, so no annual rate</span>
             ) : (
               <>
                 {annual.toFixed(0)}% a year
-                <span className="text-ink/60"> over {days_to_due} days</span>
+                <span className="text-ink-soft"> over {days_to_due} days</span>
               </>
             )}
           </Line>
@@ -111,7 +132,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
             <Line label="Invoices rejected">{client_reputation.rejected_as_client}</Line>
           </dl>
         ) : (
-          <p className="px-5 py-4 text-xs text-ink/60">
+          <p className="px-5 py-4 text-xs text-ink-soft">
             No record. This invoice was never accepted by a signed-in client, so there is
             no payment history to judge it by.
           </p>
@@ -120,7 +141,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
 
       <BuyInvoice listing={listing} contractId={publicEnv.contractId} viewer={viewer} />
 
-      <p className="mt-6 text-xs text-ink/60">
+      <p className="mt-6 text-xs text-ink-soft">
         Payments on this invoice go to whoever holds it, so after buying, the rest is paid
         to you.{" "}
         <a
@@ -140,7 +161,7 @@ async function Detail({ params }: { params: PageProps<"/market/[id]">["params"] 
 function Line({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-rule px-5 py-2.5 last:border-0">
-      <dt className="text-xs text-ink/60">{label}</dt>
+      <dt className="text-xs text-ink-soft">{label}</dt>
       <dd className="text-sm">{children}</dd>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Amount } from "@/components/Amount";
+import { Button, Pending } from "@/components/Button";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { formatAmount, toBigInt } from "@/lib/money";
 import { view, type ListingView } from "@/lib/near";
@@ -34,7 +35,7 @@ export function BuyInvoice({
   if (!viewer) {
     return (
       <Panel>
-        <p className="text-sm text-ink/70">
+        <p className="text-sm text-ink-soft">
           Connect a wallet holding USDC to buy this invoice. Your wallet signs one
           transfer and the sale settles with it.
         </p>
@@ -50,7 +51,7 @@ export function BuyInvoice({
   if (viewer === invoice.holder) {
     return (
       <Panel>
-        <p className="text-sm text-ink/70">
+        <p className="text-sm text-ink-soft">
           You are holding this invoice, so there is nothing here to buy. Take it off the
           market from{" "}
           <Link className="underline" href={`/app/invoice/${invoice.id}`}>
@@ -145,12 +146,12 @@ function Buy({
     return (
       <Panel tone="good">
         <h2 className="text-base">Invoice no. {invoice.id} is yours</h2>
-        <p className="mt-2 text-sm text-ink/70">
+        <p className="mt-2 text-sm text-ink-soft">
           The seller has been paid and the invoice has moved to {viewer}. Every payment on
           it from now on goes to you, with nothing left to set up.
         </p>
         <Link
-          className="mt-3 inline-block border border-ink px-4 py-2 text-sm hover:bg-paper"
+          className="mt-3 inline-flex min-h-11 items-center border border-ink px-4 py-2 text-sm hover:bg-paper"
           href={`/app/invoice/${invoice.id}`}
         >
           Open invoice no. {invoice.id}
@@ -162,26 +163,34 @@ function Buy({
   return (
     <Panel>
       <h2 className="text-base">Buy this invoice</h2>
-      <p className="mt-2 max-w-[56ch] text-sm text-ink/70">
+      <p className="mt-2 max-w-[56ch] text-sm text-ink-soft">
         Your wallet will show one transfer of <Amount value={price} symbol="USDC" /> to{" "}
         {contractId}. The invoice moves to you and the seller is paid in that same
         transaction.
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => void buy()}
-          disabled={busy || short}
-          className="border border-ink bg-ink px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
+        <Button
+          onClick={buy}
+          busy={busy ? "Check your wallet" : null}
+          disabled={short}
+          tone="primary"
         >
           Buy for {formatAmount(asking)} USDC
-        </button>
-        {checked && balance !== null ? (
-          <span className="text-xs text-ink/60">
-            You hold <Amount value={balance} symbol="USDC" />
-          </span>
-        ) : null}
+        </Button>
+        <span className="text-xs text-ink-soft">
+          {checked ? (
+            balance !== null ? (
+              <>
+                You hold <Amount value={balance} symbol="USDC" />
+              </>
+            ) : null
+          ) : (
+            <>
+              Checking what you hold <Pending className="w-16" />
+            </>
+          )}
+        </span>
       </div>
 
       {short ? (
@@ -191,15 +200,13 @@ function Buy({
         </p>
       ) : null}
 
-      {busy ? <p className="mt-3 text-xs text-ink/60">Check your wallet</p> : null}
-
       {error ? (
-        <p className="mt-3 border border-stamp-red/40 bg-paper p-3 text-xs text-stamp-red">
+        <p className="mt-3 border border-stamp-red bg-paper p-3 text-xs text-stamp-red">
           {error}
         </p>
       ) : null}
 
-      <p className="mt-4 max-w-[56ch] text-xs text-ink/60">
+      <p className="mt-4 max-w-[56ch] text-xs text-ink-soft">
         If the client never pays, you carry that loss. There is no insurance, no recourse
         against the issuer, and a sale cannot be undone.
       </p>

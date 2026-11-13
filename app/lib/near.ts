@@ -10,6 +10,7 @@
  */
 
 import { rpcUrl } from "./env";
+import { CAP } from "@/lib/paginate";
 
 /** Status as the contract stores it. */
 export type Status =
@@ -137,7 +138,7 @@ export function getInvoice(contractId: string, id: string) {
   return view<InvoiceView | null>(contractId, "get_invoice", { id });
 }
 
-export function getListings(contractId: string, fromIndex = "0", limit = 50) {
+export function getListings(contractId: string, fromIndex = "0", limit = CAP) {
   return view<ListingView[]>(contractId, "get_listings", {
     from_index: fromIndex,
     limit,
@@ -148,22 +149,46 @@ export function getListing(contractId: string, id: string) {
   return view<ListingView | null>(contractId, "get_listing", { id });
 }
 
-export function invoicesForIssuer(contractId: string, accountId: string, limit = 50) {
+export function invoicesForIssuer(
+  contractId: string,
+  accountId: string,
+  limit = CAP,
+  fromIndex = "0",
+) {
   return view<InvoiceView[]>(contractId, "invoices_for_issuer", {
     account_id: accountId,
+    from_index: fromIndex,
     limit,
   });
 }
 
-export function invoicesForClient(contractId: string, accountId: string, limit = 50) {
+export function invoicesForClient(
+  contractId: string,
+  accountId: string,
+  limit = CAP,
+  fromIndex = "0",
+) {
   return view<InvoiceView[]>(contractId, "invoices_for_client", {
     account_id: accountId,
+    from_index: fromIndex,
     limit,
   });
 }
 
 export function getReputation(contractId: string, accountId: string) {
   return view<Reputation>(contractId, "get_reputation", { account_id: accountId });
+}
+
+/**
+ * Money the contract holds for an account because it could not push it.
+ *
+ * A payout fails when the holder is not registered on the token contract, and rather than
+ * strand the money the contract credits it here for them to claim. Nothing in the app
+ * would otherwise mention it, so an unregistered freelancer would see a payment vanish.
+ * The dashboard asks for this on every load for exactly that reason.
+ */
+export function getClaimable(contractId: string, accountId: string, token: string) {
+  return view<string>(contractId, "get_claimable", { account_id: accountId, token });
 }
 
 /**

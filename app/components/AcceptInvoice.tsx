@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Amount } from "@/components/Amount";
+import { Button } from "@/components/Button";
 import { ConnectWallet } from "@/components/ConnectWallet";
-import { Stamp } from "@/components/Stamp";
+import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { SignOutButton } from "@/components/SignOutButton";
 import { documentHashBase64, type InvoiceDocument } from "@/lib/invoice";
 import { decodeSecret, signInviteMessage } from "@/lib/invite";
 import { callContract } from "@/lib/wallet";
@@ -186,50 +188,45 @@ export function AcceptInvoice({
 
   return (
     <div className="mt-6">
-      <article className="border border-rule bg-sheet">
-        <header className="border-b border-rule px-5 py-3">
-          <p className="text-xs text-ink/60">From</p>
-          <p className="text-base">{document?.issuer.name ?? invoice.issuer}</p>
-        </header>
-
-        <div className="flex items-baseline justify-between gap-4 px-5 pt-4">
-          <h2 className="text-lg">Invoice {invoice.id}</h2>
-          <p className="text-xs text-ink/60">Due {formatDate(invoice.due_date)}</p>
-        </div>
-
+      {/* The one sheet implementation, with the decrypted document set inside it. This
+          used to be a second hand-built copy of the sheet, which meant the screen a client
+          sees first was the only one not drawn as the instrument. */}
+      <InvoiceSheet invoice={invoice}>
         {phase === "reading" ? (
-          <p className="px-5 py-6 text-xs text-ink/60">Checking your link…</p>
+          <p className="text-xs text-ink-soft">Checking your link…</p>
         ) : document ? (
           <>
-            <dl className="mt-4 border-t border-rule">
+            <p className="text-xs text-ink-soft">Billed to</p>
+            <p className="mt-1 text-sm">{document.client.name}</p>
+
+            <div className="mt-5 border-t border-rule">
+              <div className="flex gap-4 border-b border-rule py-2.5">
+                <span className="flex-1 text-xs text-ink-soft">Description</span>
+                <span className="w-28 text-right text-xs text-ink-soft">Amount</span>
+              </div>
               {document.lines.map((line, index) => (
-                <Row key={index} label={line.description}>
-                  <Amount value={line.amount} />
-                </Row>
+                <div key={index} className="flex items-baseline gap-4 border-b border-rule py-2.5">
+                  <span className="flex-1 text-sm">{line.description}</span>
+                  <span className="tabular w-28 text-right text-sm">
+                    <Amount value={line.amount} />
+                  </span>
+                </div>
               ))}
-            </dl>
+            </div>
+
             {document.notes ? (
-              <p className="border-t border-rule px-5 py-3 text-xs text-ink/70">{document.notes}</p>
+              <p className="mt-4 max-w-[60ch] text-xs leading-relaxed text-ink-soft">
+                {document.notes}
+              </p>
             ) : null}
           </>
         ) : (
-          <p className="border-t border-rule px-5 py-4 text-xs text-ink/60">
-            The invoice details are not available, but the amount and due date below come
-            straight from the chain.
+          <p className="max-w-[60ch] text-xs leading-relaxed text-ink-soft">
+            The line items could not be opened, so only what is on chain is shown above.
+            The amount and the due date are the chain&apos;s own, and they are what binds.
           </p>
         )}
-
-        <div className="flex items-baseline justify-between border-t border-rule px-5 py-3">
-          <span className="text-sm">Total due</span>
-          <span className="text-base">
-            <Amount value={invoice.amount} symbol="USDC" />
-          </span>
-        </div>
-
-        <div className="flex items-center justify-end px-5 py-5">
-          <Stamp status={invoice.status} />
-        </div>
-      </article>
+      </InvoiceSheet>
 
       {hashMatches !== null ? (
         <p className={`mt-3 text-xs ${hashMatches ? "text-stamp-green" : "text-stamp-red"}`}>
@@ -240,18 +237,18 @@ export function AcceptInvoice({
       ) : null}
 
       {error ? (
-        <p className="mt-4 border border-stamp-red/40 bg-sheet p-3 text-xs text-stamp-red">
+        <p className="mt-4 border border-stamp-red bg-sheet p-3 text-xs text-stamp-red">
           {error}
         </p>
       ) : null}
 
       {invoice.status !== "Issued" ? (
-        <p className="mt-6 border border-rule bg-sheet p-4 text-xs text-ink/60">
+        <p className="mt-6 border border-rule bg-sheet p-4 text-xs text-ink-soft">
           This invoice is {invoice.status.toLowerCase()}, so there is nothing to decide.
         </p>
       ) : !accountId ? (
         <div className="mt-6">
-          <p className="mb-3 max-w-[48ch] text-sm text-ink/70">
+          <p className="mb-3 max-w-[48ch] text-sm text-ink-soft">
             Connect a NEAR wallet to accept or reject. Accepting records that you agreed to
             this invoice; it does not pay it.
           </p>
@@ -259,27 +256,31 @@ export function AcceptInvoice({
         </div>
       ) : (
         <div className="mt-6">
-          <p className="text-xs text-ink/60">Signed in as {accountId}</p>
+          <p className="flex flex-wrap items-center gap-3 text-xs text-ink-soft">
+            <span>Signed in as {accountId}</span>
+            {/* The reason this component needed it: an issuer opening their own invite
+                link has to be able to stop being the issuer. */}
+            <SignOutButton />
+          </p>
           <div className="mt-3 flex flex-wrap gap-3">
-            <button
-              type="button"
-              disabled={phase === "working" || hashMatches === false}
-              onClick={() => void act("accept")}
-              className="border border-stamp-blue bg-stamp-blue px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
+            <Button
+              onClick={() => act("accept")}
+              busy={phase === "working" ? "Check your wallet" : null}
+              disabled={hashMatches === false}
+              tone="primary"
             >
-              {phase === "working" ? "Check your wallet…" : "Accept invoice"}
-            </button>
-            <button
-              type="button"
-              disabled={phase === "working"}
-              onClick={() => void act("reject")}
-              className="border border-stamp-red px-4 py-2 text-sm text-stamp-red hover:bg-paper disabled:opacity-50"
+              Accept invoice
+            </Button>
+            <Button
+              onClick={() => act("reject")}
+              busy={phase === "working" ? "Check your wallet" : null}
+              tone="danger"
             >
               Reject invoice
-            </button>
+            </Button>
           </div>
           <label className="mt-4 block">
-            <span className="text-xs text-ink/60">
+            <span className="text-xs text-ink-soft">
               If you reject it, why? Optional, and kept offchain.
             </span>
             <input
@@ -298,7 +299,7 @@ function Done({ title, body, invoiceId }: { title: string; body: string; invoice
   return (
     <div className="mt-8">
       <p className="text-base">{title}</p>
-      <p className="mt-2 max-w-[52ch] text-sm text-ink/70">{body}</p>
+      <p className="mt-2 max-w-[52ch] text-sm text-ink-soft">{body}</p>
       <a
         href={`/pay/${invoiceId}`}
         className="mt-6 inline-block border border-rule px-4 py-2 text-sm hover:bg-paper"
@@ -309,14 +310,6 @@ function Done({ title, body, invoiceId }: { title: string; body: string; invoice
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-rule px-5 py-2.5 last:border-0">
-      <dt className="text-sm">{label}</dt>
-      <dd className="text-sm tabular">{children}</dd>
-    </div>
-  );
-}
 
 /** Only the hash of a reason goes onchain; the text stays offchain. */
 async function hashReason(reason: string): Promise<string> {
@@ -324,11 +317,4 @@ async function hashReason(reason: string): Promise<string> {
   return btoa(String.fromCharCode(...new Uint8Array(digest)));
 }
 
-function formatDate(ns: string): string {
-  return new Date(Number(BigInt(ns) / 1_000_000n)).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
 

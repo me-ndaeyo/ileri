@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, signOut } from "@/lib/wallet";
+import { Button } from "@/components/Button";
 
 /**
  * Sign in and out.
@@ -10,7 +11,14 @@ import { signIn, signOut } from "@/lib/wallet";
  * An action keeps one name through the flow, per the copy rules: the button says
  * "Connect wallet", and what comes back is the account, not a success message.
  */
-export function ConnectWallet({ accountId }: { accountId: string | null }) {
+export function ConnectWallet({
+  accountId,
+  compact = false,
+}: {
+  accountId: string | null;
+  /** Sized for a nav rather than a page: a smaller button, and errors below it. */
+  compact?: boolean;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -34,31 +42,48 @@ export function ConnectWallet({ accountId }: { accountId: string | null }) {
   if (accountId) {
     return (
       <div className="flex items-center gap-3 text-xs">
-        <span className="text-ink/60">Signed in as</span>
+        <span className="text-ink-soft">Signed in as</span>
         <span>{accountId}</span>
-        <button
-          type="button"
+        <Button
           onClick={() => run(signOut)}
-          disabled={busy || pending}
-          className="border border-rule px-2 py-1 hover:bg-paper disabled:opacity-50"
+          busy={busy || pending ? "Signing out" : null}
+          className="px-2 py-1"
         >
           Sign out
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      <button
-        type="button"
+    <div
+      className={
+        compact
+          ? "relative flex flex-col items-end"
+          : "flex flex-col items-start gap-2"
+      }
+    >
+      <Button
         onClick={() => run(signIn)}
-        disabled={busy || pending}
-        className="border border-stamp-blue bg-stamp-blue px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
+        busy={busy ? "Check your wallet" : pending ? "Reading your account" : null}
+        tone="primary"
+        size={compact ? "compact" : "default"}
       >
-        {busy ? "Check your wallet…" : "Connect wallet"}
-      </button>
-      {error ? <p className="text-xs text-stamp-red">{error}</p> : null}
+        Connect wallet
+      </Button>
+      {error ? (
+        <p
+          className={
+            compact
+              ? // Taken out of the flow in a nav, or an error would shove the row taller
+                // and move everything else on the page down.
+                "absolute top-full right-0 z-30 mt-1 max-w-[16rem] border border-stamp-red bg-sheet p-2 text-xs text-stamp-red"
+              : "text-xs text-stamp-red"
+          }
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

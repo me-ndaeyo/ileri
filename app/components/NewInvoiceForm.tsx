@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Amount } from "@/components/Amount";
+import { Button } from "@/components/Button";
 import { parseAmount, MoneyError } from "@/lib/money";
 import {
   canonicalize,
@@ -217,7 +218,7 @@ export function NewInvoiceForm({
       </Field>
 
       <fieldset className="mt-6 border-t border-rule pt-4">
-        <legend className="text-xs text-ink/60">What you are billing for</legend>
+        <legend className="text-xs text-ink-soft">What you are billing for</legend>
         {lines.map((line, index) => (
           <div key={index} className="mt-3 flex flex-wrap items-start gap-2">
             <input
@@ -276,20 +277,16 @@ export function NewInvoiceForm({
       </div>
 
       {error ? (
-        <p className="mt-4 border border-stamp-red/40 bg-sheet p-3 text-xs text-stamp-red">
+        <p className="mt-4 border border-stamp-red bg-sheet p-3 text-xs text-stamp-red">
           {error}
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={!canIssue}
-        className="mt-6 border border-stamp-blue bg-stamp-blue px-4 py-2 text-sm text-sheet hover:opacity-90 disabled:opacity-50"
-      >
-        {busy ?? "Create invoice"}
-      </button>
+      <Button type="submit" busy={busy} disabled={!canIssue} tone="primary" className="mt-6">
+        Create invoice
+      </Button>
 
-      <p className="mt-3 text-xs text-ink/60">
+      <p className="mt-3 text-xs text-ink-soft">
         Creating an invoice costs a small deposit for storage, which you get back when the
         invoice is closed. The amount, your account and the due date become public on
         chain; the names, lines and notes stay encrypted offchain.
@@ -305,7 +302,7 @@ function IssuedPanel({ id, link }: { id: string; link: string }) {
   return (
     <div className="mt-8">
       <p className="text-base">Invoice {id} created</p>
-      <p className="mt-2 max-w-[52ch] text-sm text-ink/70">
+      <p className="mt-2 max-w-[52ch] text-sm text-ink-soft">
         Send this link to your client. It is the only way they can accept the invoice, and
         it is shown once: the key in it is not stored anywhere, not even by us. If you lose
         it, rotate the invite from the invoice page and send a new one.
@@ -354,7 +351,7 @@ function Field({
     <label className="mt-6 block">
       <span className="text-sm">{label}</span>
       {children}
-      {hint ? <span className="mt-1 block text-xs text-ink/60">{hint}</span> : null}
+      {hint ? <span className="mt-1 block text-xs text-ink-soft">{hint}</span> : null}
     </label>
   );
 }

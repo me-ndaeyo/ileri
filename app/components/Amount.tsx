@@ -19,7 +19,7 @@ export function Amount({
   return (
     <span className={`tabular ${className}`}>
       {formatAmount(value)}
-      {symbol ? <span className="text-ink/60"> {symbol}</span> : null}
+      {symbol ? <span className="text-ink-soft"> {symbol}</span> : null}
     </span>
   );
 }

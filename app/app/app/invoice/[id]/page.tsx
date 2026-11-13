@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { AppNav } from "@/components/AppNav";
 import { notFound } from "next/navigation";
 import { Amount } from "@/components/Amount";
-import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { InvoiceActions, type Roles } from "@/components/InvoiceActions";
+import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { PanelSkeleton, SheetSkeleton } from "@/components/Skeleton";
 import { explorerBase, publicEnv } from "@/lib/env";
 import { getInvoice } from "@/lib/near";
 import { mayReadDocument, readDocument } from "@/lib/invoice-file";
@@ -20,15 +22,34 @@ export const metadata = { title: "Invoice — Ileri" };
  */
 export default function InvoicePage({ params }: PageProps<"/app/invoice/[id]">) {
   return (
-    <main className="mx-auto w-full max-w-[720px] px-4 py-10">
-      <Link href="/app" className="text-xs text-ink/60 hover:text-ink">
-        Back to your invoices
-      </Link>
-      <Suspense fallback={<p className="mt-6 text-xs text-ink/60">Loading invoice…</p>}>
-        <Detail params={params} />
+    <div className="flex min-h-dvh flex-col">
+      <Suspense fallback={<AppNav accountId={null} current="invoices" />}>
+        <Nav />
       </Suspense>
-    </main>
+      <main className="mx-auto w-full max-w-[760px] flex-1 px-5 py-10">
+        <Link
+          href="/app"
+          className="text-sm text-ink-soft underline decoration-rule underline-offset-4 hover:text-ink"
+        >
+          Back to your invoices
+        </Link>
+        <Suspense
+          fallback={
+            <div className="mt-6 flex flex-col gap-8">
+              <SheetSkeleton />
+              <PanelSkeleton lines={2} label="Loading what you can do with this invoice" />
+            </div>
+          }
+        >
+          <Detail params={params} />
+        </Suspense>
+      </main>
+    </div>
   );
+}
+
+async function Nav() {
+  return <AppNav accountId={await currentAccount()} current="invoices" />;
 }
 
 async function Detail({ params }: { params: PageProps<"/app/invoice/[id]">["params"] }) {
@@ -42,7 +63,7 @@ async function Detail({ params }: { params: PageProps<"/app/invoice/[id]">["para
 
   if (!accountId) {
     return (
-      <p className="mt-6 border border-rule bg-sheet p-4 text-sm text-ink/70">
+      <p className="mt-6 border border-rule bg-sheet p-4 text-sm text-ink-soft">
         Sign in to see this invoice.{" "}
         <Link href="/app" className="underline">
           Go to your invoices
@@ -94,11 +115,11 @@ async function Detail({ params }: { params: PageProps<"/app/invoice/[id]">["para
               </div>
             ))}
             {document.notes ? (
-              <p className="pt-3 text-xs text-ink/70">{document.notes}</p>
+              <p className="pt-3 text-xs text-ink-soft">{document.notes}</p>
             ) : null}
           </dl>
         ) : (
-          <p className="text-xs text-ink/60">{documentProblem}</p>
+          <p className="text-xs text-ink-soft">{documentProblem}</p>
         )}
       </InvoiceSheet>
 
@@ -130,7 +151,7 @@ async function Detail({ params }: { params: PageProps<"/app/invoice/[id]">["para
       </section>
 
       {invoice.listing ? (
-        <p className="mt-6 border border-stamp-blue/40 bg-sheet p-3 text-xs">
+        <p className="mt-6 border border-stamp-blue bg-sheet p-3 text-xs">
           For sale at <Amount value={invoice.listing} symbol="USDC" />.{" "}
           <Link href={`/market/${invoice.id}`} className="underline">
             See the listing
@@ -142,7 +163,7 @@ async function Detail({ params }: { params: PageProps<"/app/invoice/[id]">["para
         <InvoiceActions invoice={invoice} roles={roles} contractId={publicEnv.contractId} />
       </section>
 
-      <p className="mt-8 flex flex-wrap gap-4 text-xs text-ink/60">
+      <p className="mt-8 flex flex-wrap gap-4 text-xs text-ink-soft">
         <Link href={`/pay/${invoice.id}`} className="underline">
           Payment link to share
         </Link>
@@ -170,8 +191,8 @@ function Event({
 }) {
   return (
     <li className="flex flex-wrap items-baseline justify-between gap-2 border-b border-rule bg-sheet px-4 py-2.5">
-      <span className={`text-sm ${muted ? "text-ink/60" : ""}`}>{what}</span>
-      <time className="text-xs text-ink/60">{formatMoment(when)}</time>
+      <span className={`text-sm ${muted ? "text-ink-soft" : ""}`}>{what}</span>
+      <time className="text-xs text-ink-soft">{formatMoment(when)}</time>
     </li>
   );
 }

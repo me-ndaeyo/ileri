@@ -297,7 +297,28 @@ mod tests {
         assert_eq!(metadata.description, None);
         assert_eq!(metadata.extra, None);
         assert_eq!(metadata.reference, None);
-        assert_eq!(metadata.media, None);
+
+        // The image is the one thing metadata points at, and it is addressed by the token
+        // id alone. Relative, so a viewer joins it to `base_uri` as `{base}/{media}`:
+        // hence no leading slash here, and none trailing on the base.
+        assert_eq!(metadata.media, Some("1/image.svg".to_string()));
+        assert_eq!(
+            metadata.media_hash, None,
+            "the image is generated, so there is nothing to pin"
+        );
+
+        // The real assertion: whatever metadata carries, none of it is the invoice.
+        let rendered = format!("{metadata:?}");
+        for private in [
+            "1200000000",  // the amount
+            "client",      // the counterparty
+            "88992000000", // the due date
+        ] {
+            assert!(
+                !rendered.contains(private),
+                "token metadata must not carry {private}, got {rendered}"
+            );
+        }
     }
 
     // --- 37: NEP-171 mint event ---

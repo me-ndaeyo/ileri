@@ -59,6 +59,23 @@ Ten tokens. Contrast ratios are against paper unless stated.
 | `gold` | `#9C7A22` | Listed for sale. The market, and nothing else | 4.6:1 |
 | `indigo` | `#2A3F7A` | Accepted, and money still crossing chains | 8.1:1 |
 
+**Dark mode** is a second set of the same ten tokens: the grounds go to a warm near-black,
+so it reads as the same desk under a lamp rather than a different product, and the four
+status inks are lightened until they pass against it rather than reused and left failing.
+The engraving is redrawn rather than recoloured, because the note inside the logo's seal
+relies on an opaque fill that a CSS mask would turn into a solid block, so there are dark
+cuts of all five assets.
+
+Three selectors govern it, and all three are needed: the `prefers-color-scheme` media
+query so the system preference is honoured by default, `:root:not([data-theme="light"])`
+on that query so an explicit choice of light beats a dark system, and
+`:root[data-theme="dark"]` so an explicit choice of dark beats a light system. The stored
+choice is applied by an inline script in the head, before first paint; applying it after
+hydration gives a flash of the wrong theme, which is worse than having no toggle.
+
+The toggle offers light, system and dark, because two states cannot express "follow my
+machine", which is the default most people want.
+
 Rules that come with the palette:
 
 - Colour belongs to **status**, not to the brand. The logo is never anything but ink or
@@ -121,7 +138,13 @@ rendered from the token id alone for the NFT.
 rejected (ink), cancelled (ink-soft dashed), listed for sale (gold).
 
 **Buttons**: primary is ink filled, secondary is an ink hairline, destructive is an oxblood
-hairline, quiet is text with a rule underline. All at least 44px tall.
+hairline, gold is for listing, quiet is text with a rule underline. All at least 44px tall.
+A busy button shows the hairline spinner and a label saying what is being waited on, since
+almost every action here waits on a wallet window and that wait is seconds.
+
+**Motion**: exactly two animations, and the list is closed. `stamp-press` when a status
+lands, and `spin-hairline` on a busy control. Under reduced motion the stamp appears
+without its press and the spinner becomes a static dot.
 
 **Account chip**: a disc in the account's own derived colour plus the account id in mono, so
 the same person looks the same on every screen.
