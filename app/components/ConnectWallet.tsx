@@ -11,7 +11,14 @@ import { Button } from "@/components/Button";
  * An action keeps one name through the flow, per the copy rules: the button says
  * "Connect wallet", and what comes back is the account, not a success message.
  */
-export function ConnectWallet({ accountId }: { accountId: string | null }) {
+export function ConnectWallet({
+  accountId,
+  compact = false,
+}: {
+  accountId: string | null;
+  /** Sized for a nav rather than a page: a smaller button, and errors below it. */
+  compact?: boolean;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -49,15 +56,34 @@ export function ConnectWallet({ accountId }: { accountId: string | null }) {
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div
+      className={
+        compact
+          ? "relative flex flex-col items-end"
+          : "flex flex-col items-start gap-2"
+      }
+    >
       <Button
         onClick={() => run(signIn)}
         busy={busy ? "Check your wallet" : pending ? "Reading your account" : null}
         tone="primary"
+        className={compact ? "min-h-9 px-3 py-1.5 text-xs" : ""}
       >
         Connect wallet
       </Button>
-      {error ? <p className="text-xs text-stamp-red">{error}</p> : null}
+      {error ? (
+        <p
+          className={
+            compact
+              ? // Taken out of the flow in a nav, or an error would shove the row taller
+                // and move everything else on the page down.
+                "absolute top-full right-0 z-30 mt-1 max-w-[16rem] border border-stamp-red bg-sheet p-2 text-xs text-stamp-red"
+              : "text-xs text-stamp-red"
+          }
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

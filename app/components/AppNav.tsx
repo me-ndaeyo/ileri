@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AccountChip } from "@/components/AccountChip";
+import { ConnectWallet } from "@/components/ConnectWallet";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -57,7 +58,7 @@ export function AppNav({
                 <SignOutButton />
               </>
             ) : (
-              <span className="text-xs text-ink-soft">Not connected</span>
+              <ConnectWallet accountId={null} compact />
             )}
           </div>
 
@@ -69,7 +70,7 @@ export function AppNav({
             {accountId ? (
               <SignOutButton />
             ) : (
-              <span className="text-xs text-ink-soft">Not connected</span>
+              <ConnectWallet accountId={null} compact />
             )}
           </span>
         </div>
