@@ -47,7 +47,7 @@ export function InvoiceSheet({
   const sold = invoice.holder !== null && invoice.holder !== invoice.issuer;
 
   return (
-    <article className="instrument relative overflow-hidden border border-rule bg-sheet">
+    <article className="relative overflow-hidden border border-rule bg-sheet">
       <div className="band h-6 w-full" aria-hidden="true" />
       <div
         className="rosette pointer-events-none absolute -right-8 top-24 h-52 w-52 opacity-40"

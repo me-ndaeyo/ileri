@@ -118,6 +118,19 @@ body {
   color: var(--ink);
 }
 
+/* The phone tab bar is fixed, so content has to be able to scroll clear of it. Keyed off
+   the bar's own presence rather than added to each page's main, because the next page
+   somebody adds would otherwise have its last row sitting under the bar with no clue why.
+   Only below the breakpoint the bar appears at.
+   
+   8.5rem rather than the bar's own height: several pages end in a note, and clearing only
+   the bar left that note half covered. */
+@media (width < 40rem) {
+  body:has(.tabbar) main {
+    padding-bottom: 8.5rem;
+  }
+}
+
 /* The headers are sticky, so an in-page link would otherwise land its target underneath
    one. Set on anything with an id rather than per section, because the next anchor
    somebody adds would otherwise quietly have the same bug. */
@@ -258,55 +271,6 @@ body {
 }
 :root[data-theme="dark"] .mark-sheet {
   background-image: url("../public/engraving/mark-dark.svg");
-}
-
-/* The instrument stays paper, whatever the app is doing.
-   
-   A banknote is a light object. The desk it lies on can go dark, and under a lamp that is
-   exactly what happens, but the note itself does not invert. Keeping it fixed also means
-   the sheet looks the same in both themes, which matters more here than anywhere else: the
-   same drawing is the NFT's image, and that has one appearance wherever it is shown.
-   
-   Done by re-declaring the tokens for this subtree rather than by hardcoding colours on
-   the component, so everything inside it, including the stamps, follows without knowing
-   anything about themes. */
-.instrument {
-  --paper: #f4f1e8;
-  --sheet: #fbfaf5;
-  --wash: #e9e4d6;
-  --rule: #cec6b2;
-  --ink: #171a24;
-  --ink-soft: #5a5e6b;
-  --ink-faint: #767166;
-  --stamp-blue: #2a3f7a;
-  --stamp-green: #1c5b40;
-  --stamp-red: #8a2b2b;
-  --gold: #9c7a22;
-  color-scheme: light;
-}
-
-/* The engraving too. The dark overrides above are more specific than a bare
-   `.instrument .band`, so these have to name the theme as well to win it back. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .instrument .band {
-    background-image: url("../public/engraving/guilloche-band.svg");
-  }
-  :root:not([data-theme="light"]) .instrument .rosette {
-    background-image: url("../public/engraving/rosette-ink.svg");
-  }
-  :root:not([data-theme="light"]) .instrument .seal {
-    background-image: url("../public/engraving/rosette.svg");
-  }
-}
-
-:root[data-theme="dark"] .instrument .band {
-  background-image: url("../public/engraving/guilloche-band.svg");
-}
-:root[data-theme="dark"] .instrument .rosette {
-  background-image: url("../public/engraving/rosette-ink.svg");
-}
-:root[data-theme="dark"] .instrument .seal {
-  background-image: url("../public/engraving/rosette.svg");
 }
 
 /* Two rules with a hair between them, as on a certificate, to close a section. A single

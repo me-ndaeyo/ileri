@@ -36,12 +36,26 @@ const SIZES = {
 } as const;
 
 const TONES = {
-  /** The one thing this screen is for. One per view. */
-  primary: "border-ink bg-ink text-sheet hover:opacity-90",
-  /** An action that is available but not the point of the screen. */
+  /**
+   * The one thing this screen is for. One per view, and the accent carries it.
+   *
+   * Ink-filled before, which made the main action the same colour as the body text and
+   * gave a screen no focal point at all. Oxblood is the right colour for it here: in this
+   * design it is the seal, which reads as authority rather than as alarm.
+   */
+  primary: "border-stamp-red bg-stamp-red text-sheet hover:opacity-90",
+  /** Available, but not the point of the screen. */
   secondary: "border-ink bg-transparent hover:bg-paper",
-  /** Cancelling, rejecting, anything that destroys. Never the primary. */
-  danger: "border-stamp-red bg-transparent text-stamp-red hover:bg-paper",
+  /**
+   * Cancelling, rejecting, anything that destroys. Never the primary.
+   *
+   * A neutral border with oxblood text, NOT an oxblood border. Beside a filled-oxblood
+   * primary, an outlined-oxblood button reads as the quieter version of the same action,
+   * and "Reject invoice" sitting next to "Accept invoice" is the one place in this app
+   * where that confusion would be expensive. The fill is what marks the primary; the
+   * text colour is what marks the danger.
+   */
+  danger: "border-rule bg-transparent text-stamp-red hover:bg-paper",
   /** Listing for sale, which is the market and so gold. */
   market: "border-gold bg-gold text-sheet hover:opacity-90",
 } as const;

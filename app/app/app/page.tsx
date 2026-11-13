@@ -6,7 +6,7 @@ import { AppNav } from "@/components/AppNav";
 import { ClaimPayout } from "@/components/ClaimPayout";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { Pager } from "@/components/Pager";
-import { LedgerSkeleton } from "@/components/Skeleton";
+import { DashboardSkeleton } from "@/components/Skeleton";
 import { StatusPill } from "@/components/StatusPill";
 import { publicEnv } from "@/lib/env";
 import { formatAmount, sum, unpaid } from "@/lib/money";
@@ -39,7 +39,7 @@ export default function Dashboard({ searchParams }: PageProps<"/app">) {
         <Nav />
       </Suspense>
       <main className="mx-auto w-full max-w-[1080px] flex-1 px-5 py-10">
-        <Suspense fallback={<LedgerSkeleton rows={PER_PAGE} />}>
+        <Suspense fallback={<DashboardSkeleton rows={4} />}>
           <SignedInArea searchParams={searchParams} />
         </Suspense>
       </main>

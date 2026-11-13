@@ -28,12 +28,16 @@ export default function Home() {
   return (
     <div className="flex min-h-full flex-col">
       <header className="sticky top-0 z-20 border-b border-rule bg-paper">
-        <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-center gap-x-8 gap-y-4 px-5 py-4">
+        <div className="mx-auto flex w-full max-w-[1080px] items-center gap-x-4 px-5 py-3 sm:gap-x-8 sm:py-4">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="mark h-8 w-8 flex-none" aria-hidden="true" />
             <span className="font-serif text-lg leading-none">Ileri</span>
           </Link>
-          <nav className="flex flex-wrap gap-6 text-sm">
+          {/* Hidden on a phone. Five items in one row had to wrap, and these three are
+              the ones worth losing: two are in-page anchors to content the reader is
+              about to scroll through anyway, and the market is reachable from the
+              footer. What stays is the theme and the way into the app. */}
+          <nav className="hidden gap-6 text-sm sm:flex">
             <Link href="/market" className="hover:text-stamp-red">
               Market
             </Link>
@@ -48,7 +52,7 @@ export default function Home() {
           <ThemeToggle />
           <Link
             href="/app"
-            className="min-h-11 border border-ink px-4 py-2 text-sm hover:bg-sheet"
+            className="tap-44 inline-flex min-h-7 items-center border border-ink px-2 py-1 text-[0.6875rem] hover:bg-sheet sm:min-h-11 sm:px-4 sm:py-2 sm:text-sm"
           >
             Your invoices
           </Link>

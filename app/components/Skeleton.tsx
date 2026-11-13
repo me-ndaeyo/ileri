@@ -37,7 +37,7 @@ function Busy({ label, children }: { label: string; children: React.ReactNode })
 export function SheetSkeleton() {
   return (
     <Busy label="Loading the invoice">
-      <article className="instrument relative overflow-hidden border border-rule bg-sheet">
+      <article className="relative overflow-hidden border border-rule bg-sheet">
         <div className="band h-6 w-full" aria-hidden="true" />
 
         <div className="flex items-start justify-between gap-4 px-6 pt-6">
@@ -134,6 +134,54 @@ export function LedgerSkeleton({
           </div>
         ))}
       </div>
+    </Busy>
+  );
+}
+
+/**
+ * The dashboard, before the account's figures arrive.
+ *
+ * Mirrors the real layout: the title and its action, the four summary figures, then the
+ * two labelled ledgers. A bare list of rows was the wrong shape, so the page jumped twice
+ * as it loaded, once when the figures appeared above the list and again when the second
+ * section pushed in below it.
+ *
+ * The labels are the real ones. They are known before the data is, and a skeleton that
+ * can say what it is loading should.
+ */
+export function DashboardSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <Busy label="Loading your invoices">
+      <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
+        <div>
+          <h1 className="font-serif text-xl leading-tight">Your invoices</h1>
+          <Line className="mt-3 h-3 w-56" />
+        </div>
+        <span className="flex-1" />
+        <Line className="h-11 w-40" />
+      </div>
+
+      <div className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(min(12rem,100%),1fr))] gap-px border border-rule bg-rule">
+        {["Outstanding", "Overdue", "Settled", "Listed for sale"].map((label) => (
+          <div key={label} className="bg-sheet px-5 py-4">
+            <p className="text-xs text-ink-soft">{label}</p>
+            <Line className="mt-2 h-6 w-28" />
+            <Line className="mt-2 h-3 w-24" />
+          </div>
+        ))}
+      </div>
+
+      {["Sent", "Billed to you"].map((title, i) => (
+        <section key={title} className="mt-10">
+          <div className="flex items-center gap-5">
+            <h2 className="text-base whitespace-nowrap">{title}</h2>
+            <span className="h-px flex-1 bg-rule" />
+          </div>
+          <div className="mt-4">
+            <LedgerSkeleton rows={i === 0 ? rows : Math.max(1, rows - 2)} label={`Loading ${title.toLowerCase()}`} />
+          </div>
+        </section>
+      ))}
     </Busy>
   );
 }

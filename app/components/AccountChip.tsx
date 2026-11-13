@@ -44,14 +44,14 @@ export function AccountChip({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-2 border border-rule bg-paper py-1 pl-1.5 pr-3 ${className}`}
+      className={`inline-flex items-center gap-1.5 border border-rule bg-paper py-0.5 pl-1 pr-2 sm:gap-2 sm:py-1 sm:pl-1.5 sm:pr-3 ${className}`}
     >
       <span
-        className="h-4 w-4 flex-none rounded-full opacity-85"
+        className="h-3 w-3 flex-none rounded-full opacity-85 sm:h-4 sm:w-4"
         style={{ background: inkFor(accountId) }}
         aria-hidden="true"
       />
-      <span className="truncate font-mono text-xs">{accountId}</span>
+      <span className="truncate font-mono text-[0.625rem] sm:text-xs">{accountId}</span>
       {note ? <span className="text-xs text-ink-soft">{note}</span> : null}
     </span>
   );

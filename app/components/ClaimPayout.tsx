@@ -71,8 +71,7 @@ export function ClaimPayout({
         <Button
           onClick={claim}
           busy={busy ? "Check your wallet" : null}
-          tone="danger"
-          className="border-stamp-red bg-stamp-red text-sheet hover:opacity-90"
+          tone="primary"
         >
           Claim {formatAmount(amount)} USDC
         </Button>
