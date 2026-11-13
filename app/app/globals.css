@@ -126,7 +126,10 @@ body {
    8.5rem rather than the bar's own height: several pages end in a note, and clearing only
    the bar left that note half covered. */
 @media (width < 40rem) {
-  body:has(.tabbar) main {
+  /* On `body` rather than on `main`, so whatever is last on a page gets cleared. The app
+     screens end in a `main`, the landing page ends in a `footer`, and padding only `main`
+     left that footer underneath the bar. */
+  body:has(.tabbar) {
     padding-bottom: 8.5rem;
   }
 }

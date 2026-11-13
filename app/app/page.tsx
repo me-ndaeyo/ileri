@@ -33,10 +33,9 @@ export default function Home() {
             <span className="mark h-8 w-8 flex-none" aria-hidden="true" />
             <span className="font-serif text-lg leading-none">Ileri</span>
           </Link>
-          {/* Hidden on a phone. Five items in one row had to wrap, and these three are
-              the ones worth losing: two are in-page anchors to content the reader is
-              about to scroll through anyway, and the market is reachable from the
-              footer. What stays is the theme and the way into the app. */}
+          {/* Below `sm` these move to the bar at the foot of the page, the same as the
+              rest of the app. Hiding them outright was the first attempt and it was
+              inconsistent: everywhere else, navigation on a phone lives at the bottom. */}
           <nav className="hidden gap-6 text-sm sm:flex">
             <Link href="/market" className="hover:text-stamp-red">
               Market
@@ -50,9 +49,11 @@ export default function Home() {
           </nav>
           <span className="flex-1" />
           <ThemeToggle />
+          {/* The way into the app is in the bottom bar on a phone, where it is the
+              accented item, so this is the wide-screen copy of it. */}
           <Link
             href="/app"
-            className="tap-44 inline-flex min-h-7 items-center border border-ink px-2 py-1 text-[0.6875rem] hover:bg-sheet sm:min-h-11 sm:px-4 sm:py-2 sm:text-sm"
+            className="hidden min-h-11 items-center border border-ink px-4 py-2 text-sm hover:bg-sheet sm:inline-flex"
           >
             Your invoices
           </Link>
@@ -230,6 +231,25 @@ export default function Home() {
         </section>
       </main>
 
+      {/* The phone navigation, matching the app's. Labels rather than icons here: two of
+          these are in-page anchors and neither "how it works" nor "questions" has a shape
+          anybody would recognise, so a word is the honest label. */}
+      <nav
+        className="tabbar fixed inset-x-0 bottom-0 z-20 border-t border-ink bg-sheet sm:hidden"
+        aria-label="Sections"
+      >
+        <div className="flex items-stretch justify-between gap-1 px-2 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+          <BottomLink href="/market">Market</BottomLink>
+          <BottomLink href="#how">How it works</BottomLink>
+          <BottomLink href="#questions">Questions</BottomLink>
+          {/* The one thing this page is asking for, so it carries the accent, the same
+              as a primary button does anywhere else. */}
+          <BottomLink href="/app" accent>
+            Your invoices
+          </BottomLink>
+        </div>
+      </nav>
+
       <footer className="border-t border-ink">
         <div className="band h-5 w-full" aria-hidden="true" />
         <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-baseline gap-x-12 gap-y-6 px-5 pb-10 pt-7">
@@ -256,6 +276,40 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+/**
+ * One item in the phone bar.
+ *
+ * `Link` for a route so it is prefetched and client navigated, a plain anchor for an
+ * in-page jump, where a router navigation would be wrong. The 44px minimum is kept even
+ * though the labels are small.
+ */
+function BottomLink({
+  href,
+  accent = false,
+  children,
+}: {
+  href: string;
+  accent?: boolean;
+  children: React.ReactNode;
+}) {
+  const className = `flex min-h-11 flex-1 items-center justify-center px-1 text-center text-[0.6875rem] leading-tight ${
+    accent ? "bg-stamp-red text-sheet" : "text-ink-soft"
+  }`;
+
+  if (href.startsWith("#")) {
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }
 
