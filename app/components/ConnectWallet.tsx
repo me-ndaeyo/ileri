@@ -67,7 +67,7 @@ export function ConnectWallet({
         onClick={() => run(signIn)}
         busy={busy ? "Check your wallet" : pending ? "Reading your account" : null}
         tone="primary"
-        className={compact ? "min-h-9 px-3 py-1.5 text-xs" : ""}
+        size={compact ? "compact" : "default"}
       >
         Connect wallet
       </Button>

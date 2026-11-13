@@ -18,6 +18,23 @@
  * which still marks the control as busy without pretending to show progress.
  */
 
+/**
+ * Sizes, as whole sets.
+ *
+ * A caller cannot pass `min-h-7` through `className` to shrink the default, because both
+ * would land on the element and Tailwind resolves a conflict by stylesheet order rather
+ * than by the order written in the attribute. Which one wins is then effectively
+ * arbitrary. So the size is chosen here and only one set is ever emitted.
+ *
+ * `compact` goes under the 44px target the design system asks for, so it carries
+ * `tap-44`, which extends the touch area without changing the box.
+ */
+const SIZES = {
+  default: "min-h-11 px-4 py-2 text-sm",
+  compact:
+    "tap-44 min-h-7 px-2 py-1 text-[0.6875rem] sm:min-h-9 sm:px-3 sm:py-1.5 sm:text-xs",
+} as const;
+
 const TONES = {
   /** The one thing this screen is for. One per view. */
   primary: "border-ink bg-ink text-sheet hover:opacity-90",
@@ -34,6 +51,7 @@ export function Button({
   busy,
   disabled,
   tone = "secondary",
+  size = "default",
   type = "button",
   className = "",
   children,
@@ -43,6 +61,8 @@ export function Button({
   busy?: string | null;
   disabled?: boolean;
   tone?: keyof typeof TONES;
+  /** Pick a size here rather than overriding one through `className`. See SIZES. */
+  size?: keyof typeof SIZES;
   type?: "button" | "submit";
   className?: string;
   children: React.ReactNode;
@@ -57,7 +77,7 @@ export function Button({
       // the app is waiting on them.
       aria-busy={waiting || undefined}
       aria-live={waiting ? "polite" : undefined}
-      className={`min-h-11 border px-4 py-2 text-sm disabled:opacity-50 ${TONES[tone]} ${className}`}
+      className={`border disabled:opacity-50 ${SIZES[size]} ${TONES[tone]} ${className}`}
     >
       {waiting ? (
         <span className="inline-flex items-center gap-2">

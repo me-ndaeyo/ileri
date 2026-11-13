@@ -125,6 +125,28 @@ body {
   scroll-margin-top: 5rem;
 }
 
+/* A control can be drawn small and still be easy to hit.
+   
+   The design system asks for a 44px touch target, and a compact control in a nav is
+   smaller than that. This extends the touch area to 44px with a pseudo-element, so the
+   box stays small and the layout around it does not change while the thing is still
+   comfortably tappable. Shrinking a control without this just makes it hard to press. */
+.tap-44 {
+  position: relative;
+}
+
+.tap-44::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 100%;
+  height: 100%;
+  min-width: 44px;
+  min-height: 44px;
+}
+
 /* Money lines up in columns or it is not money. Public Sans has tabular figures, so
    amounts never jitter as they change. */
 .tabular {
