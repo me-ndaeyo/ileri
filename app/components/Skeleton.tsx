@@ -111,25 +111,30 @@ export function LedgerSkeleton({
         {Array.from({ length: rows }, (_, i) => (
           <div
             key={i}
-            className="flex items-center justify-between gap-4 border-b border-rule bg-sheet px-4 py-4"
+            className="flex items-center gap-4 border-b border-rule bg-sheet px-4 py-3.5"
           >
-            <div className="flex items-center gap-3">
-              {/* The serial stub, which is the one thing a row always leads with. */}
-              <div
-                className="flex h-11 w-9 flex-col justify-between border border-rule bg-paper"
-                aria-hidden="true"
-              >
-                <div className="comb h-1" />
-                <div className="comb h-1" />
-              </div>
-              <div>
-                <Line className="h-3 w-20" />
-                <Line className="mt-2 h-3 w-36" />
-              </div>
+            {/* The serial stub, which is the one thing a row always leads with. */}
+            <div
+              className="flex h-11 w-9 flex-none flex-col justify-between border border-rule bg-paper"
+              aria-hidden="true"
+            >
+              <div className="comb h-1" />
+              <div className="comb h-1" />
             </div>
-            <div className="flex flex-col items-end">
-              <Line className="h-3 w-20" />
-              <Line className="mt-2 h-3 w-14" />
+
+            {/* The same two lines the real row has. */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-3">
+                <Line className="h-3 w-28" />
+                <Line className="h-5 w-20" />
+              </div>
+              <div className="mt-2 flex items-end justify-between gap-3">
+                <Line className="h-5 w-36" />
+                <div className="flex-none text-right">
+                  <Line className="h-3 w-20" />
+                  <Line className="mt-1 h-3 w-14" />
+                </div>
+              </div>
             </div>
           </div>
         ))}
@@ -161,12 +166,15 @@ export function DashboardSkeleton({ rows = 4 }: { rows?: number }) {
         <Line className="h-11 w-40" />
       </div>
 
-      <div className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(min(12rem,100%),1fr))] gap-px border border-rule bg-rule">
+      <div className="mt-8 grid grid-cols-1 gap-px border border-rule bg-rule sm:grid-cols-[repeat(auto-fit,minmax(min(12rem,100%),1fr))]">
         {["Outstanding", "Overdue", "Settled", "Listed for sale"].map((label) => (
-          <div key={label} className="bg-sheet px-5 py-4">
+          <div
+            key={label}
+            className="flex items-baseline justify-between gap-3 bg-sheet px-4 py-2.5 sm:block sm:px-5 sm:py-4"
+          >
             <p className="text-xs text-ink-soft">{label}</p>
-            <Line className="mt-2 h-6 w-28" />
-            <Line className="mt-2 h-3 w-24" />
+            <Line className="h-4 w-24 sm:mt-2 sm:h-6 sm:w-28" />
+            <Line className="mt-2 hidden h-3 w-24 sm:block" />
           </div>
         ))}
       </div>

@@ -30,7 +30,7 @@ export const metadata = { title: "Market — Ileri" };
 export default function MarketPage({ searchParams }: PageProps<"/market">) {
   // Not awaited here: runtime data at the top level would stop the shell prerendering.
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <Suspense fallback={<AppNav accountId={null} current="market" />}>
         <Nav />
       </Suspense>

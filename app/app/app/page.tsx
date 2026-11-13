@@ -34,7 +34,7 @@ export default function Dashboard({ searchParams }: PageProps<"/app">) {
   // it is runtime data, and awaiting it at the top level would stop the shell
   // prerendering under Cache Components.
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <Suspense fallback={<AppNav accountId={null} current="invoices" />}>
         <Nav />
       </Suspense>
@@ -116,7 +116,7 @@ async function SignedInArea({ searchParams }: { searchParams: PageProps<"/app">[
       ) : null}
 
       {mine.length > 0 ? (
-        <div className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(min(12rem,100%),1fr))] gap-px border border-rule bg-rule">
+        <div className="mt-8 grid grid-cols-1 gap-px border border-rule bg-rule sm:grid-cols-[repeat(auto-fit,minmax(min(12rem,100%),1fr))]">
           <Figure label="Outstanding" count={`Across ${owed.length}`}>
             {formatAmount(sum(owed.map((i) => i.unpaid)))}
           </Figure>
@@ -159,6 +159,18 @@ async function SignedInArea({ searchParams }: { searchParams: PageProps<"/app">[
   );
 }
 
+/**
+ * One summary figure.
+ *
+ * Four cells stacked on a phone was about 360px of chrome before the first invoice, which
+ * is the wrong thing to spend a small screen on. So below `sm` each cell becomes a ledger
+ * row, label left and figure right, which is what a summary is anyway and matches the
+ * rows on the sheet.
+ *
+ * All four figures stay. What goes on a phone is the caption under each one, which is the
+ * least load-bearing part: "Across four invoices" is pleasant on a desktop and is not
+ * worth 200px on a phone.
+ */
 function Figure({
   label,
   count,
@@ -171,13 +183,13 @@ function Figure({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-sheet px-5 py-4">
+    <div className="flex items-baseline justify-between gap-3 bg-sheet px-4 py-2.5 sm:block sm:px-5 sm:py-4">
       <p className={`text-xs ${tone || "text-ink-soft"}`}>{label}</p>
-      <p className="mt-1.5 flex items-baseline gap-2">
-        <span className={`tabular text-lg ${tone}`}>{children}</span>
+      <p className="flex items-baseline gap-2 sm:mt-1.5">
+        <span className={`tabular text-sm sm:text-lg ${tone}`}>{children}</span>
         <span className="font-mono text-xs text-ink-soft">USDC</span>
       </p>
-      <p className="mt-1 text-xs text-ink-soft">{count}</p>
+      <p className="hidden text-xs text-ink-soft sm:mt-1 sm:block">{count}</p>
     </div>
   );
 }
@@ -220,39 +232,53 @@ function Ledger({
         <ul className="mt-4 border-t border-rule">
           {page.rows.map((invoice) => (
             <li key={invoice.id}>
+              {/* Two fixed lines rather than one wrapping row. Five things competing for
+                  one flex line wrapped differently depending on how long the account id
+                  and the amount happened to be, so no two rows lined up. Now the serial
+                  and the status are always line one, the client and the money always line
+                  two, at every width. */}
               <Link
                 href={`/app/invoice/${invoice.id}`}
-                className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-rule bg-sheet px-4 py-3.5 hover:bg-paper"
+                className="flex items-center gap-4 border-b border-rule bg-sheet px-4 py-3.5 hover:bg-paper"
               >
                 <Stub id={invoice.id} />
-                <span className="min-w-0">
-                  <span className="serial block text-xs">
-                    No. {invoice.id.padStart(10, "0")}
+
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="serial text-xs">
+                      No. {invoice.id.padStart(10, "0")}
+                    </span>
+                    <StatusPill status={invoice.status} />
                   </span>
-                  <span className="mt-1 block">
-                    {invoice.client ? (
-                      <AccountChip accountId={invoice.client} />
-                    ) : (
-                      <span className="text-xs text-ink-soft italic">not accepted yet</span>
-                    )}
+
+                  <span className="mt-2 flex items-end justify-between gap-3">
+                    <span className="min-w-0">
+                      {invoice.client ? (
+                        <AccountChip accountId={invoice.client} className="max-w-full" />
+                      ) : (
+                        <span className="text-xs text-ink-soft italic">
+                          not accepted yet
+                        </span>
+                      )}
+                    </span>
+
+                    <span className="flex-none text-right">
+                      <span className="tabular block text-sm">
+                        <Amount value={invoice.amount} symbol="USDC" />
+                      </span>
+                      <span className="mt-0.5 block text-xs text-ink-soft">
+                        {invoice.paid === "0" ? (
+                          "nothing paid"
+                        ) : (
+                          <>
+                            <Amount value={unpaid(invoice.amount, invoice.paid)} /> still
+                            owed
+                          </>
+                        )}
+                      </span>
+                    </span>
                   </span>
                 </span>
-                <span className="flex-1" />
-                <span className="text-right">
-                  <span className="tabular block text-sm">
-                    <Amount value={invoice.amount} symbol="USDC" />
-                  </span>
-                  <span className="mt-1 block text-xs text-ink-soft">
-                    {invoice.paid === "0" ? (
-                      "nothing paid"
-                    ) : (
-                      <>
-                        <Amount value={unpaid(invoice.amount, invoice.paid)} /> still owed
-                      </>
-                    )}
-                  </span>
-                </span>
-                <StatusPill status={invoice.status} />
               </Link>
             </li>
           ))}

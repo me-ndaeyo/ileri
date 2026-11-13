@@ -22,7 +22,7 @@ export const metadata = { title: "Invoice — Ileri" };
  */
 export default function InvoicePage({ params }: PageProps<"/app/invoice/[id]">) {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <Suspense fallback={<AppNav accountId={null} current="invoices" />}>
         <Nav />
       </Suspense>

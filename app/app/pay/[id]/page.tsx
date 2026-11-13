@@ -25,7 +25,7 @@ export default function PayPage({ params }: PageProps<"/pay/[id]">) {
   // `params` is deliberately not awaited at the top level. Awaiting it here is runtime
   // data, which stops the shell prerendering and fails the build under Cache Components.
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-rule bg-sheet">
         <div className="mx-auto flex w-full max-w-[720px] flex-wrap items-center gap-3 px-4 py-3">
           <Link href="/" className="text-xl">

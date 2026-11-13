@@ -11,7 +11,7 @@ export const metadata = { title: "Create an invoice — Ileri" };
 
 export default function NewInvoicePage() {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <Suspense fallback={<AppNav accountId={null} current="invoices" />}>
         <Nav />
       </Suspense>

@@ -37,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${publicSans.variable} ${instrumentSerif.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${publicSans.variable} ${instrumentSerif.variable} ${plexMono.variable} antialiased`}
     >
       {/* No referrer anywhere: an invite link carries a private key in its fragment,
           and a leaked Referer header would be the one way that escapes the browser. */}
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             hydration gives a flash of the wrong one, which is worse than no toggle. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="font-sans min-h-full flex flex-col text-sm">{children}</body>
+      <body className="font-sans flex flex-col text-sm">{children}</body>
     </html>
   );
 }

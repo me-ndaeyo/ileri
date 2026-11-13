@@ -22,7 +22,7 @@ export default function ListingPage({ params }: PageProps<"/market/[id]">) {
   // Pushing the await into the suspended child keeps the frame static and streams only
   // the part that genuinely depends on the URL.
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <Suspense fallback={<AppNav accountId={null} current="market" />}>
         <Nav />
       </Suspense>

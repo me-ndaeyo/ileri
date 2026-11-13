@@ -29,7 +29,7 @@ export const metadata = {
  */
 export default function InvitePage({ params }: PageProps<"/i/[id]">) {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-rule bg-sheet">
         <div className="mx-auto flex w-full max-w-[760px] flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3">
           <Link href="/" className="flex items-center gap-2.5">

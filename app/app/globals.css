@@ -116,6 +116,12 @@
 body {
   background: var(--paper);
   color: var(--ink);
+  /* `dvh`, not `%`. A percentage height resolves against the initial viewport, which on a
+     phone does not change as the URL bar collapses, so a `position: fixed` bar anchored to
+     the bottom drifts against content laid out to the stale figure. It only shows on a
+     page long enough to scroll, which is why the landing page moved and the shorter app
+     screens did not. `dvh` tracks the live viewport, so the two agree. */
+  min-height: 100dvh;
 }
 
 /* The phone tab bar is fixed, so content has to be able to scroll clear of it. Keyed off
